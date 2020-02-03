@@ -4,7 +4,7 @@
 #' \code{psfmi_lr} Pooling and backward selection for Logistic regression
 #' prediction models in multiply imputed datasets using different selection methods.
 #'
-#' @param data Data frame or data matrix with stacked multiple imputed datasets.
+#' @param data Data frame with stacked multiple imputed datasets.
 #'   The original dataset that contains missing values must be excluded from the
 #'   dataset. The imputed datasets must be distinguished by an imputation variable,
 #'   specified under impvar, and starting by 1.
@@ -14,7 +14,8 @@
 #' @param Outcome Character vector containing the name of the outcome variable.
 #' @param predictors Character vector with the names of the predictor variables.
 #'   At least one predictor variable has to be defined.
-#' @param p.crit A numerical scalar. P-value selection criterium.
+#' @param p.crit A numerical scalar. P-value selection criterium. A value of 1 
+#'   provides the pooled model without selection.
 #' @param cat.predictors A single string or a vector of strings to define the
 #' categorical variables. Default is NULL categorical predictors.
 #' @param spline.predictors A single string or a vector of strings to define the
@@ -34,18 +35,22 @@
 #' @details The basic pooling procedure to derive pooled coefficients, standard errors, 95
 #'  confidence intervals and p-values is Rubin's Rules (RR). Specific procedures are
 #'  available to derive pooled p-values for categorical (> 2 categories) and spline variables.
-#'  print.method allows to choose between these pooling methods that are:
-#'  “D1” is pooling of the total covariance matrix, ”D2” is pooling of Chi-square values,
-#'  “D3” is pooling Likelihood ratio statistics (method of Meng and Rubin) and “MPR”
-#'  is pooling of median p-values (MPR rule). Spline regression coefficients are defined
-#'  by using the rcs function for restricted cubic splines of the rms package of Frank Harrell.
-#'  A minimum number of 3 knots as defined under knots is needed.
+#'  print.method allows to choose between the pooling methods: “D1” is pooling of the total 
+#'  covariance matrix, ”D2” is pooling of Chi-square values, “D3” is pooling Likelihood ratio 
+#'  statistics (method of Meng and Rubin) and “MPR” is pooling of median p-values (MPR rule). 
+#'  Spline regression coefficients are defined by using the rcs function for restricted cubic 
+#'  splines of the rms package. A minimum number of 3 knots as defined under knots is required.
 #'
-#'@return A \code{psfmi_lr} object from which the following objects can be extracted: pooled model as \code{RR_model}, 
-#'  pooled p-values according to pooling method as \code{multiparm_p}, predictors excluded at each step as \code{coef.excl_step}, 
-#'  and \code{impvar}, \code{nimp}, \code{Outcome}, \code{method}, \code{p.crit}, \code{predictors}, 
-#'  \code{cat.predictors}, \code{keep.predictors}, \code{int.predictors},
-#'  \code{spline.predictors}, \code{knots}, \code{print.method}.
+#'@return An object of class \code{smodsmi} (selected models in multiply imputed datasets) from 
+#'  which the following objects can be extracted: imputed datasets as \code{data}, selected 
+#'  pooled model as \code{RR_model}, pooled p-values according to pooling method as \code{multiparm}, 
+#'  predictors included at each selection step as \code{predictors_in}, predictors excluded at each step 
+#'  as \code{predictors_out}, and \code{impvar}, \code{nimp}, \code{Outcome}, \code{method}, \code{p.crit}, 
+#'  \code{predictors}, \code{cat.predictors}, \code{keep.predictors}, \code{int.predictors}, 
+#'  \code{spline.predictors}, \code{knots}, \code{print.method}, \code{call}, \code{model_type},
+#'  \code{predictors_final} for names of predictors in final selection step, \code{fit.formula} is the 
+#'  regression formula of start model and \code{predictors_initial} for names of predictors in start
+#'  model.
 #'
 #' @references Eekhout I, van de Wiel MA, Heymans MW. Methods for significance testing of categorical
 #'   covariates in logistic regression models after multiple imputation: power and applicability
@@ -60,6 +65,9 @@
 #'   2009;9:57.
 #' @references Van Buuren S. (2018). Flexible Imputation of Missing Data. 2nd Edition. Chapman & Hall/CRC
 #'   Interdisciplinary Statistics. Boca Raton.
+#' @references EW. Steyerberg (2019). Clinical Prediction MOdels. A Practical Approach 
+#'  to Development, Validation, and Updating (2nd edition). Springer Nature Switzerland AG.
+#'  
 #' @references http://missingdatasolutions.rbind.io/
 #'
 #' @examples
@@ -67,19 +75,22 @@
 #'   predictors=c("Gender", "Smoking", "Function", "JobControl",
 #'   "JobDemands", "SocialSupport"), method="D1")
 #'   pool_lr$RR_Model
-#'   pool_lr$multiparm_p
+#'   pool_lr$multiparm
 #'
 #'   pool_lr <- psfmi_lr(data=lbpmilr, nimp=5, impvar="Impnr", Outcome="Chronic",
 #'   predictors=c("Gender", "Smoking", "Function", "JobControl",
 #'   "JobDemands", "SocialSupport"), p.crit = 0.05, method="D1")
 #'   pool_lr$RR_Model
-#'   pool_lr$multiparm_p
+#'   pool_lr$multiparm
+#'   pool_lr$predictors_in
 #'
 #' @export
 psfmi_lr <- function(data, nimp=5, impvar=NULL, Outcome, predictors=NULL,
  p.crit=1, cat.predictors=NULL, spline.predictors=NULL, int.predictors=NULL,
- keep.predictors=NULL, knots=NULL, method=NULL, print.method=FALSE)
+ keep.predictors=NULL, knots=NULL, method="RR", print.method=FALSE)
 {
+  call <- match.call()
+  
   P <- predictors
   cat.P <- cat.predictors
   keep.P <- keep.predictors
@@ -88,15 +99,19 @@ psfmi_lr <- function(data, nimp=5, impvar=NULL, Outcome, predictors=NULL,
   P.check <-c(P, cat.P, s.P)
   
   # Check data input
-  if (!(is.matrix(data) | is.data.frame(data)))
-    stop("Data should be a matrix or data frame")
-  data <- data.frame(data.matrix(data))
+  if (!(is.data.frame(data)))
+    stop("Data should be a data frame")
+  data <- data.frame(as_tibble(data))
+  data <- mutate_if(data, is.factor, ~ as.numeric(as.character(.x)))
+  if(!all(data[Outcome]==1 | data[Outcome]==0))
+    stop("Outcome should be a 0 - 1 variable")
   if ((nvar <- ncol(data)) < 2)
     stop("Data should contain at least two columns")
   if(is.null(impvar))
     stop("Imputation variable is not defined")
-  if(is.null(method))
-    stop("Define selection method: D1, D2, D3 or MPR")
+  if(is.null(method)) method="RR"
+  if(all(!is.null(cat.predictors) | !is.null(spline.predictors)) & method=="RR")
+    stop("Categorical or spline variables in model, define selection method: D1, D2, D3 or MPR")
   if (order(unique(data[, impvar]))[1] == 0)
     stop("Original dataset should not be included")
   if(is.null(nimp))
@@ -142,7 +157,7 @@ psfmi_lr <- function(data, nimp=5, impvar=NULL, Outcome, predictors=NULL,
       stop("\n", "Not all interaction terms defined as
         Predictor or Categorical Predictor", "\n\n")
   }
-  # First predictors, second cetegorical
+  # First predictors, second categorical
   # predictors and last interactions
   P <- c(P, cat.P, s.P, int.P)
   if (is.null(P))
@@ -261,10 +276,10 @@ psfmi_lr <- function(data, nimp=5, impvar=NULL, Outcome, predictors=NULL,
   
   # Start  loop for backward selection over imputed datasets
   
-  coef.f <- se.f <- RR.model <- multiparm_p <- coef.excl_step <- step.nr <- list()
+  coef.f <- se.f <- RR.model <- multiparm <- coef.excl_step <- step.nr <- P_in_step <- list()
   
   for (k in 1:length(P)) {
-    
+    P_in_step[[k]] <- P
     if(method=="D3"){
       cat.spline.P <- lapply(int.P[grep(":", int.P)],
         function(x) {
@@ -277,8 +292,8 @@ psfmi_lr <- function(data, nimp=5, impvar=NULL, Outcome, predictors=NULL,
       p.pool <- psfmi_D3(data=data, nimp=nimp, impvar=impvar,
                          P=P, Outcome=Outcome, p.crit=p.crit,
                          print.method = print.method)
-      multiparm_p[[k]] <- p.pool
-      names(multiparm_p)[k] <- paste("Step", k)
+      multiparm[[k]] <- p.pool
+      names(multiparm)[k] <- paste("Step", k)
       
     }
     chi.LR <- data.frame(matrix(0, length(P), nimp))
@@ -318,6 +333,11 @@ psfmi_lr <- function(data, nimp=5, impvar=NULL, Outcome, predictors=NULL,
       stop("\n", "Check Pooled Model, some parameters
           could not be estimated", "\n")
     }
+    if(method=="RR"){
+      p.pool <- data.frame(pool.RR[-1, 3])
+      multiparm <- NULL
+    }
+    
     if(method=="D1" | method=="D2" | method=="MPR"){
       # D2
       if(method=="D2") {
@@ -329,7 +349,7 @@ psfmi_lr <- function(data, nimp=5, impvar=NULL, Outcome, predictors=NULL,
           miceadds::micombine.chisquare(x, y, display = F) })
         mi.chisq <- mi.chisq_orig <- round(data.frame(do.call("rbind", mi.chiL))[, -c(3,4)], 5)
         rownames(mi.chisq) <- rownames(mi.chisq_orig) <- P
-        names(mi.chisq) <- c("D2", "D2 & RR p-values")
+        names(mi.chisq) <- c("D2", "p-value D2 & RR")
         
         # Combine D2 with RR
         id.p.RR.f <- grep("factor", row.names(pool.RR))
@@ -339,11 +359,11 @@ psfmi_lr <- function(data, nimp=5, impvar=NULL, Outcome, predictors=NULL,
         
         if(print.method) {
           mi.chisq <- mi.chisq_orig
-          names(mi.chisq) <- c("D2", "D2 p-values")
+          names(mi.chisq) <- c("D2", "p-value D2")
         }
         
-        multiparm_p[[k]] <- mi.chisq
-        names(multiparm_p)[k] <- paste("Step", k)
+        multiparm[[k]] <- mi.chisq
+        names(multiparm)[k] <- paste("Step", k)
         # Res.f is the dataframe with the CHISQ pooled
         # p-values for all variables
       }
@@ -358,50 +378,50 @@ psfmi_lr <- function(data, nimp=5, impvar=NULL, Outcome, predictors=NULL,
         id.p.RR.spl <- grep("rcs", row.names(pool.RR))
         res.RR <- pool.RR[-c(1, id.p.RR.f,id.p.RR.spl), 3]
         est.D1[names(res.RR), 2] <- res.RR
-        names(est.D1) <- c("Chi_sq", "D1 & RR p-values")
+        names(est.D1) <- c("Chi_sq", "p-value D1 & RR")
         
         if(print.method) {
           est.D1 <- est.D1_orig
-          names(est.D1) <- c("Chi_sq", "D1 p-values")
+          names(est.D1) <- c("Chi_sq", "p-value D1")
         }
         
-        multiparm_p[[k]] <- est.D1
-        names(multiparm_p)[k] <- paste("Step", k)
+        multiparm[[k]] <- est.D1
+        names(multiparm)[k] <- paste("Step", k)
       }
       # MPR
       if(method=="MPR") {
         med.pvalue <- med.pvalue_orig <- round(data.frame(apply(chi.p, 1, median)), 5)
         rownames(med.pvalue) <- rownames(med.pvalue_orig) <- P
-        names(med.pvalue) <- "MPR & RR P-values"
         
         # Combine Median p with RR
         id.p.RR.f <- grep("factor", row.names(pool.RR))
         id.p.RR.spl <- grep("rcs", row.names(pool.RR))
         res.RR <- pool.RR[-c(1, id.p.RR.f, id.p.RR.spl), 3]
         med.pvalue[names(res.RR), 1] <- res.RR
+        names(med.pvalue) <- "P-value MPR & RR"
         
         if(print.method) {
           med.pvalue <- med.pvalue_orig
-          names(med.pvalue_orig) <- "MPR P-values"
+          names(med.pvalue) <- "P-value MPR"
         }
         
-        multiparm_p[[k]] <- med.pvalue
-        names(multiparm_p)[k] <- paste("Step", k)
+        multiparm[[k]] <- med.pvalue
+        names(multiparm)[k] <- paste("Step", k)
       }
       
       if(method=="D2"){
         p.pool <- data.frame(as.matrix(mi.chisq)[, 2])
-        names(p.pool) <- "RR & D2 p-value"
+        names(p.pool) <- "p-value RR & D2"
         
       }
       if(method=="D1"){
         p.pool <- data.frame(as.matrix(est.D1)[, 2])
-        names(p.pool) <- "RR & D1 p-value"
+        names(p.pool) <- "p-value RR & D1"
         
       }
       if(method=="MPR"){
         p.pool <- med.pvalue
-        names(p.pool) <- "RR & MPR p-value"
+        names(p.pool) <- "p-value RR & MPR"
       }
     }
     
@@ -537,6 +557,7 @@ psfmi_lr <- function(data, nimp=5, impvar=NULL, Outcome, predictors=NULL,
     
     if (p.pool[, 1][del.coef.id] > p.crit) {
       if (length(P) == 0) {
+        coef.excl_step[[k]] <- coef.excl
         message("\n", "Selection correctly terminated, ",
                 "\n", "Model is empty after last step", "\n")
         (break)()
@@ -558,17 +579,50 @@ psfmi_lr <- function(data, nimp=5, impvar=NULL, Outcome, predictors=NULL,
     coef.excl_step[[k]] <- coef.excl
     # End k loop
   }
-  if(p.crit==1) coef.excl_step <- as.null(coef.excl_step)
-  else {
-    coef.excl_step <- data.frame(do.call("rbind", coef.excl_step))
-    names(coef.excl_step) <- "Excluded"
-    row.names(coef.excl_step) <- paste("Step", 1:nrow(coef.excl_step))
+  if(p.crit==1) {
+    coef.excl_step <- as.null(coef.excl_step)
+    P_select <- data.frame(matrix(1, 1, length(P_in_step[[1]]), byrow=TRUE))
+    colnames(P_select) <- P_in_step[[1]]
+    predictors_final <- P_in_step[[1]]
   }
-  
-  pooledobj <- list("RR_Model"=RR.model, "multiparm_p"=multiparm_p, "coef.excl_step" = coef.excl_step,
-   "impvar"=impvar, "nimp"=nimp, "Outcome"=Outcome, "method"=method, "p.crit"=p.crit,
-   "predictors"=predictors, "cat.predictors"=cat.predictors,
-   "keep.predictors"=keep.predictors, "int.predictors"=int.predictors,
-   "spline.predictors"=spline.predictors, "knots"=knots, "print.method"=print.method)
-  return(pooledobj)
+  else {
+    if(is_empty(coef.excl_step)){
+      coef.excl_step <- as.null(coef.excl_step)
+      P_select <- data.frame(matrix(rep(1, length(P_in_step[[1]])), 1, 
+                                    length(P_in_step[[1]]), byrow=TRUE))
+      rownames(P_select) <- "Step 1"
+      colnames(P_select) <- P_in_step[[1]]
+    }
+    else{  
+      coef.excl_step <- data.frame(do.call("rbind", coef.excl_step))
+      names(coef.excl_step) <- "Excluded"
+      row.names(coef.excl_step) <- paste("Step", 1:nrow(coef.excl_step))
+      
+      outOrder_step <- P_in_step[[1]]
+      P_select <- data.frame(do.call("rbind", lapply(P_in_step, function(x) {
+        outOrder_step %in% x
+      })))
+      names(P_select) <- P_in_step[[1]]
+      P_select[P_select==TRUE] <- 1
+      row.names(P_select) <- paste("Step", 1:nrow(P_select))
+      if(length(P_in_step[[1]]) == length(coef.excl_step[, 1])) {
+        r_null <- rep(0, length(P_in_step[[1]]))
+        names(r_null) <- P_in_step[[1]]
+        P_select <- bind_rows(P_select, r_null)
+        row.names(P_select) <- paste("Step", 1:nrow(P_select))
+      }
+    }
+    predictors_final <- colnames(P_select)[which(P_select[nrow(P_select), ]==1)]
+  }
+  fit.formula <- as.formula(paste(Y, paste(P_in_step[[1]], collapse = "+")))
+  pobj <- list(data = data, RR_Model = RR.model, multiparm = multiparm,
+               predictors_in = P_select, predictors_out = coef.excl_step,
+               impvar = impvar, nimp = nimp, Outcome = Outcome, method = method, p.crit = p.crit,
+               predictors = predictors, cat.predictors = cat.predictors, call = call,
+               keep.predictors = keep.predictors, int.predictors = int.predictors, model_type = "binomial",
+               spline.predictors = spline.predictors, knots = knots, print.method = print.method,
+               fit.formula = fit.formula, predictors_final = predictors_final,
+               predictors_initial = P_in_step[[1]])
+  class(pobj) <- "smodsmi"
+  return(pobj)
 }

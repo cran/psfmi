@@ -5,16 +5,26 @@
 \title{Pooling and predictor selection function for Cox regression
 models in multiply imputed datasets}
 \usage{
-psfmi_coxr(data, nimp = 5, impvar = NULL, time, status,
-  predictors = NULL, p.crit = 1, cat.predictors = NULL,
-  spline.predictors = NULL, int.predictors = NULL,
-  keep.predictors = NULL, knots = NULL, method = NULL,
-  print.method = FALSE)
+psfmi_coxr(
+  data,
+  nimp = 5,
+  impvar = NULL,
+  time,
+  status,
+  predictors = NULL,
+  p.crit = 1,
+  cat.predictors = NULL,
+  spline.predictors = NULL,
+  int.predictors = NULL,
+  keep.predictors = NULL,
+  knots = NULL,
+  method = "RR",
+  print.method = FALSE
+)
 }
 \arguments{
-\item{data}{Data frame or data matrix with stacked multiple imputed
-datasets.
-  The original dataset that contains missing values must be excluded from the dataset. The imputed
+\item{data}{Data frame with stacked multiple imputed
+datasets. The original dataset that contains missing values must be excluded from the dataset. The imputed
   datasets must be distinguished by an imputation variable, specified under impvar, and starting by 1.}
 
 \item{nimp}{A numerical scalar. Number of imputed datasets. Default is 5.}
@@ -53,11 +63,16 @@ chosen method (under method) is shown. If FALSE (default) p-value for categorica
 to method are shown and for continuous and dichotomous predictors Rubin’s Rules are used.}
 }
 \value{
-A \code{psfmi_coxr} object from which the following objects can be extracted: pooled model as 
- \code{RR_model}, pooled p-values according to pooling method as \code{multiparm_p}, predictors 
- excluded at each step as \code{coef.excl_step}, and \code{impvar}, \code{nimp}, \code{method}, 
- \code{p.crit}, \code{predictors}, \code{cat.predictors}, \code{keep.predictors}, \code{int.predictors},
- \code{spline.predictors}, \code{knots}, \code{print.method}.
+An object of class \code{smodsmi} (selected models in multiply imputed datasets) from 
+ which the following objects can be extracted: imputed datasets as \code{data}, selected 
+ pooled model as \code{RR_model}, pooled p-values according to pooling method as \code{multiparm}, 
+ predictors included at each selection step as \code{predictors_in}, predictors excluded at each step 
+ as \code{predictors_out}, and \code{impvar}, \code{nimp}, \code{time}, \code{status}, \code{method}, 
+ \code{p.crit}, \code{predictors}, \code{cat.predictors}, \code{keep.predictors}, \code{int.predictors}, 
+ \code{spline.predictors}, \code{knots}, \code{print.method}, \code{call}, \code{model_type} and 
+ \code{predictors_final} for names of predictors in final selection step, \code{fit.formula} is the 
+ regression formula of start model and \code{predictors_initial} for names of predictors in start
+ model.
 }
 \description{
 \code{psfmi_coxr} Pooling and backward selection for Cox regression
@@ -78,15 +93,18 @@ The basic pooling procedure to derive pooled coefficients, standard errors, 95
   status="Status", predictors=c("Duration", "Radiation", "Onset"), p.crit=1, 
   method="D1", cat.predictors=c("Expect_cat"))
   pool_coxr$RR_Model
-  pool_coxr$multiparm_p
+  pool_coxr$multiparm
   
+ \dontrun{ 
   pool_coxr <- psfmi_coxr(data=lbpmicox, nimp=5, impvar="Impnr", time="Time", 
   status="Status", predictors=c("Previous",  "Radiation", "Onset",
   "Function", "Tampascale" ), p.crit=0.05, cat.predictors=c("Expect_cat"), 
   int.predictors=c("Tampascale:Radiation",
   "Expect_cat:Tampascale"), keep.predictors = "Tampascale", method="D2")
   pool_coxr$RR_Model
-  pool_coxr$multiparm_p
+  pool_coxr$multiparm
+  pool_coxr$predictors_in
+ } 
   
 }
 \references{
