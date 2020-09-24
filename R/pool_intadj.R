@@ -30,7 +30,7 @@
 #' @examples
 #'  res_psfmi <- psfmi_lr(data=lbpmilr, nimp=5, impvar="Impnr", Outcome="Chronic",
 #'            predictors=c("Gender", "Pain","Tampascale","Smoking","Function", 
-#'            "Radiation", "Age"), p.crit = 1, method="D1")
+#'            "Radiation", "Age"), p.crit = 1, method="D1", direction="BW")
 #'  res_psfmi$RR_Model
 #'
 #' \dontrun{
@@ -46,8 +46,8 @@
 #'   
 #' @export   
 pool_intadj <- function(pobj, shrinkage_factor){
-  if(class(pobj)!="smodsmi")
-    stop("\n", "Object should be of type smodsmi", "\n")
+  if(class(pobj)!="pmods")
+    stop("\n", "Object should be of type pmods", "\n")
   if(pobj$model_type=="survival")
     stop("\n", "Pooling of intercepts only available for models of type binomial", "\n")
   if(!is.null(pobj$random.eff))
