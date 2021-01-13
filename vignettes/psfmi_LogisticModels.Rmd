@@ -3,9 +3,9 @@ title: "Pooling and Selection of Logistic Regression Models"
 author: "Martijn W Heymans"
 date: "`r Sys.Date()`"
 output:
-  bookdown::html_document2
+  rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{psfmi_LogisticModels}
+  %\VignetteIndexEntry{Pooling and Selection of Logistic Regression Models}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---

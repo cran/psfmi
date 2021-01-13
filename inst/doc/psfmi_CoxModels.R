@@ -63,7 +63,7 @@ knitr::opts_chunk$set(
   predictors=c("Duration", "Previous",  "Radiation", "Onset", "Function"), 
   p.crit=0.05, cat.predictors=c("Satisfaction"), spline.predictors=c("Tampascale"),
   int.predictors=c("Tampascale:Radiation"), keep.predictors = "Tampascale", 
-  nknots=3, method="D1", direction = "MPR")
+  nknots=3, method="MPR", direction = "FW")
   
   pool_coxr$RR_model_final
   

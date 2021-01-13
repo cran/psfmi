@@ -3,9 +3,9 @@ title: "Working together: mice and psfmi"
 author: "Martijn W Heymans"
 date: "`r Sys.Date()`"
 output:
-  bookdown::html_document2
+  rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{psfmi_mice}
+  %\VignetteIndexEntry{Working together: mice and psfmi}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---

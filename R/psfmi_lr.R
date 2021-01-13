@@ -35,7 +35,7 @@
 #'   See details for more information. Default is "RR".
 #' @param direction The direction of predictor selection, "BW" means backward selection and "FW"
 #'   means forward selection.
-
+#'
 #' @details The basic pooling procedure to derive pooled coefficients, standard errors, 95
 #'  confidence intervals and p-values is Rubin's Rules (RR). However, RR is only possible when
 #'  the model included continuous or dichotomous variables. Specific procedures are
@@ -106,7 +106,7 @@
 #' @author Martijn Heymans, 2020
 #'
 #' @examples
-#'   pool_lr <- psfmi_lr( data=lbpmilr, formula = Chronic ~ Pain + 
+#'   pool_lr <- psfmi_lr(data=lbpmilr, formula = Chronic ~ Pain + 
 #'   factor(Satisfaction) + rcs(Tampascale,3) + Radiation + 
 #'   Radiation*factor(Satisfaction) + Age + Duration + BMI,
 #'   p.crit = 0.05, direction="FW", nimp=5, impvar="Impnr", 
@@ -204,7 +204,7 @@ psfmi_lr <- function(data,
   if(is_empty(method)) method="RR"
   if(all(!is_empty(cat.P) | !is_empty(s.P)) & method=="RR")
     stop("Categorical or spline variables in model, define selection method: D1, D2, D3 or MPR")
-  if (order(unique(data[, impvar]))[1] == 0)
+  if (sort(unique(data[, impvar]))[1] == 0)
     stop("Original dataset should not be included")
   if(is_empty(nimp))
     stop("Number of imputed datasets is not defined, use nimp!")
