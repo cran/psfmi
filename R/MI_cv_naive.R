@@ -54,8 +54,9 @@ MI_cv_naive <- function(pobj, folds = 3, p.crit = 1, BW=FALSE, cv_naive_appt=TRU
 
                            # if BW = TRUE
                            if(BW==TRUE){
-                             pobj_bw <- bw_single(formula = fm_train, data =  train_data,
-                                                  p.crit = p.crit, keep.predictors = pobj$keep.predictors)
+                             pobj_bw <- glm_bw(formula = fm_train, data =  train_data,
+                                                  p.crit = p.crit, keep.predictors = pobj$keep.predictors,
+                                                  model_type="binomial")
 
                              if(is_empty(pobj_bw$predictors_final))
                                pobj_bw$predictors_final <- 1
@@ -205,10 +206,10 @@ MI_cv_naive <- function(pobj, folds = 3, p.crit = 1, BW=FALSE, cv_naive_appt=TRU
     }
 
     perform_mi_orig <-
-      pool_performance(data=pobj$data, nimp = pobj$nimp,
-                       impvar=pobj$impvar, Outcome = pobj$Outcome,
-                       predictors = pobj$predictors_final, cal.plot=FALSE,
-                       plot.indiv=FALSE, groups_cal = 10)
+      pool_performance_internal(data=pobj$data, nimp = pobj$nimp,
+                       impvar=pobj$impvar,
+                       formula = fm)
+    
     rescv <- list(Test=rescv, Apparent=perform_mi_orig)
   }
   return(rescv)

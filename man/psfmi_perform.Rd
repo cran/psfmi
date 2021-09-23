@@ -2,7 +2,7 @@
 % Please edit documentation in R/psfmi_perform.R
 \name{psfmi_perform}
 \alias{psfmi_perform}
-\title{Evaluate model performance of logistic prediction models in Multiply Imputed datasets}
+\title{Internal validation and performance of logistic prediction models across Multiply Imputed datasets}
 \usage{
 psfmi_perform(
   pobj,
@@ -18,8 +18,8 @@ psfmi_perform(
   direction = NULL,
   cv_naive_appt = FALSE,
   cal.plot = FALSE,
-  plot.indiv = FALSE,
-  groups_cal = 10,
+  plot.method = "mean",
+  groups_cal = 5,
   miceImp,
   ...
 )
@@ -66,12 +66,14 @@ showing the cross-validation apparent (train) and test results. Set to FALSE to 
 \item{cal.plot}{If TRUE a calibration plot is generated. Default is FALSE. Can be used in combination
 with int_val = FALSE.}
 
-\item{plot.indiv}{If TRUE calibration plots for each separate imputed dataset are generated,
-otherwise all calibration plots are plotted in one figure.}
+\item{plot.method}{If "mean" one calibration plot is generated, first taking the 
+mean of the linear predictor across the multiply imputed datasets (default), if 
+"individual" the calibration plot of each imputed dataset is plotted, 
+if "overlay" calibration plots from each imputed datasets are plotted in one figure.}
 
-\item{groups_cal}{A numerical scalar. Number of groups used on the calibration plot.
-Default is 10. If the range of predicted probabilities is too low, less groups can be
-chosen.}
+\item{groups_cal}{A numerical scalar. Number of groups used on the calibration plot and. 
+for the Hosmer and Lemeshow test. Default is 10. If the range of predicted probabilities. 
+is low, less than 10 groups can be chosen, but not < 3.}
 
 \item{miceImp}{Wrapper function around the \code{mice} function.}
 
@@ -123,27 +125,6 @@ For internal validation five methods can be used, cv_MI, cv_MI_RR, MI_cv_naive,
 }
 }
 
-\examples{
-pool_lr <- psfmi_lr(data=lbpmilr, formula = Chronic ~ Pain + JobDemands + rcs(Tampascale, 3) +
-           factor(Satisfaction) + Smoking, p.crit = 1, direction="FW",
-           nimp=5, impvar="Impnr", method="D1")
-           
-pool_lr$RR_model
-
-res_perf <- psfmi_perform(pool_lr, val_method = "cv_MI", data_orig = lbp_orig, folds=3,
-            nimp_cv = 2, p.crit=0.05, BW=TRUE, miceImp = miceImp, printFlag = FALSE)
-            
-res_perf
-
-\dontrun{
- set.seed(200)
-  res_val <- psfmi_perform(pobj, val_method = "boot_MI", data_orig = lbp_orig, nboot = 5,
-  p.crit=0.05, BW=TRUE, miceImp = miceImp, nimp_mice = 5, printFlag = FALSE, direction = "FW")
-  
-  res_val$stats_val
-}
-
-}
 \references{
 Heymans MW, van Buuren S, Knol DL, van Mechelen W, de Vet HC. Variable selection under
  multiple imputation using the bootstrap in a prognostic study. BMC Med Res Methodol. 2007(13);7:33.

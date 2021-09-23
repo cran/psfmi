@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martijn W Heymans" />
 
-<meta name="date" content="2021-01-13" />
+<meta name="date" content="2021-09-23" />
 
 <title>Multiple Imputation and Cross-validation - method cv_MI</title>
 
@@ -28,7 +28,14 @@
     </style>
 
 
-<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
@@ -134,13 +141,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <h1 class="title toc-ignore">Multiple Imputation and Cross-validation - method cv_MI</h1>
 <h4 class="author">Martijn W Heymans</h4>
-<h4 class="date">2021-01-13</h4>
+<h4 class="date">2021-09-23</h4>
 
 
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>This page contains information of the <code>cv_MI</code> method that combines Multiple Imputation with Cross-validation for the validation of logistic prediction models. This cross-validation method is based on the papers of <a href="https://onlinelibrary.wiley.com/doi/full/10.1002/bimj.201800289">Mertens BJ</a> and <a href="https://journals.sagepub.com/doi/abs/10.1177/0049124115610345">Miles A</a>. The <code>cv_MI</code> method is implemented in the function <code>psfmi_perform</code>. An explanation and examples of how to use the method can be found below.</p>
+<p>This page contains information of the <code>cv_MI</code> method that combines Multiple Imputation with Cross-validation for the validation of logistic prediction models. This cross-validation method is based on the papers of <a href="https://onlinelibrary.wiley.com/doi/full/10.1002/bimj.201800289">Mertens BJ</a> and <a href="https://journals.sagepub.com/doi/abs/10.1177/0049124115610345">Miles A</a>. The <code>cv_MI</code> method is implemented in the function <code>psfmi_validate</code>. An explanation and examples of how to use the method can be found below.</p>
 </div>
 <div id="method-cv_mi" class="section level1">
 <h1>Method cv_MI</h1>
@@ -175,7 +182,7 @@ Schematic overview of the cv_MI method
 ## Selection correctly terminated, 
 ## No more variables removed from the model</code></pre>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>res_cv <span class="ot">&lt;-</span> <span class="fu">psfmi_perform</span>(pool_lr, <span class="at">val_method =</span> <span class="st">&quot;cv_MI&quot;</span>, <span class="at">data_orig =</span> lbp_orig, <span class="at">folds =</span> <span class="dv">5</span>,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>res_cv <span class="ot">&lt;-</span> <span class="fu">psfmi_validate</span>(pool_lr, <span class="at">val_method =</span> <span class="st">&quot;cv_MI&quot;</span>, <span class="at">data_orig =</span> lbp_orig, <span class="at">folds =</span> <span class="dv">5</span>,</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">p.crit=</span><span class="dv">1</span>, <span class="at">BW=</span><span class="cn">FALSE</span>,  <span class="at">nimp_cv =</span> <span class="dv">3</span>, <span class="at">miceImp =</span> miceImp, <span class="at">printFlag =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <pre><code>## 
 ## Imp run 1</code></pre>
@@ -225,8 +232,8 @@ Schematic overview of the cv_MI method
 ## 0.007978539 0.845083421 
 ## 
 ## $auc_test
-##             95% Low    AUC 95% Up
-## AUC (logit)  0.7475 0.8261 0.8841</code></pre>
+##                     95% Low C-statistic 95% Up
+## C-statistic (logit)  0.7475      0.8261 0.8841</code></pre>
 <p>Back to <a href="#examples">Examples</a></p>
 </div>
 <div id="method-cv_mi-including-bw-selection" class="section level2">
@@ -245,7 +252,7 @@ Schematic overview of the cv_MI method
 ## Selection correctly terminated, 
 ## No more variables removed from the model</code></pre>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>res_cv <span class="ot">&lt;-</span> <span class="fu">psfmi_perform</span>(pool_lr, <span class="at">val_method =</span> <span class="st">&quot;cv_MI&quot;</span>, <span class="at">data_orig =</span> lbp_orig, <span class="at">folds =</span> <span class="dv">5</span>,</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>res_cv <span class="ot">&lt;-</span> <span class="fu">psfmi_validate</span>(pool_lr, <span class="at">val_method =</span> <span class="st">&quot;cv_MI&quot;</span>, <span class="at">data_orig =</span> lbp_orig, <span class="at">folds =</span> <span class="dv">5</span>,</span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">p.crit=</span><span class="fl">0.05</span>, <span class="at">BW=</span><span class="cn">TRUE</span>,  <span class="at">nimp_cv =</span> <span class="dv">3</span>, <span class="at">miceImp =</span> miceImp, <span class="at">printFlag =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <pre><code>## 
 ## Imp run 1</code></pre>
@@ -340,8 +347,8 @@ Schematic overview of the cv_MI method
 ## 0.007978539 0.845083421 
 ## 
 ## $auc_test
-##             95% Low    AUC 95% Up
-## AUC (logit)  0.7475 0.8261 0.8841</code></pre>
+##                     95% Low C-statistic 95% Up
+## C-statistic (logit)  0.7475      0.8261 0.8841</code></pre>
 </div>
 </div>
 

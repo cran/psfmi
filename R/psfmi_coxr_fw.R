@@ -1,7 +1,7 @@
-#' Forward selection of Cox regression models in multiply imputed data.
+#' Forward selection of Cox regression models across multiply imputed data.
 #'
 #' \code{psfmi_coxr_fw} Forward selection of Cox regression
-#' models in multiply imputed data using selection methods RR, D1, D2 and MPR.
+#' models across multiply imputed data using selection methods RR, D1, D2 and MPR.
 #' Function is called by \code{psfmi_coxr}.
 #'
 #' @param data Data frame with stacked multiple imputed datasets.
@@ -290,7 +290,6 @@ psfmi_coxr_fw <- function(data, nimp, impvar, status, time, p.crit, P, keep.P, m
   }
 
   # Extract selected models
-  # Extract selected models
   outOrder_step <- P_orig
   if(!is_empty(P_each_step)){
     P_select <- data.frame(do.call("rbind", lapply(P_each_step, function(x) {
@@ -317,8 +316,15 @@ psfmi_coxr_fw <- function(data, nimp, impvar, status, time, p.crit, P, keep.P, m
   }
 
   multiparm_out <- NULL
-  P_excluded <- as_tibble(names(P_select[nrow(P_select), ][P_select[nrow(P_select), ] ==0] ))
-  names(P_excluded) <- "Excluded"
+  if(length(c(P_select)==0)==1) { P_excluded <- P_orig
+  } else {
+    P_excluded <- as_tibble(names(P_select[nrow(P_select), ][P_select[nrow(P_select), ] ==0] ))
+  }
+  if(is_empty(P_excluded)){
+    P_excluded <- NULL
+  } else {
+    names(P_excluded) <- "Excluded"
+  }
   predictors_final <- names(P_select[nrow(P_select), ][P_select[nrow(P_select), ] ==1])
   if(is_empty(P_each_step)){
     RR_model <- RR_model_final <- RR_model_select

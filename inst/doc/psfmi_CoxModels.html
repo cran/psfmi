@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martijn W Heymans" />
 
-<meta name="date" content="2021-01-13" />
+<meta name="date" content="2021-09-23" />
 
 <title>Pooling and Selection of Cox Regression Models</title>
 
@@ -28,7 +28,14 @@
     </style>
 
 
-<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
@@ -134,7 +141,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <h1 class="title toc-ignore">Pooling and Selection of Cox Regression Models</h1>
 <h4 class="author">Martijn W Heymans</h4>
-<h4 class="date">2021-01-13</h4>
+<h4 class="date">2021-09-23</h4>
 
 
 
@@ -148,22 +155,22 @@ the following pooling methods: RR (Rubin’s Rules), D1, D2, and MPR (Median R R
 <ul>
 <li>[Cox regression]
 <ul>
-<li><a href="#pooling-without-bs-and-method-d1">Pooling without BS and method D1</a></li>
-<li><a href="#pooling-with-fs-and-method-mpr">Pooling with FS and method MPR</a></li>
-<li><a href="#pooling-with-fs-including-interaction-terms-and-method-d1">Pooling with FS including interaction terms and method D1</a></li>
-<li><a href="#pooling-with-bs-including-spline-coefficients-and-method-d1">Pooling with BS including spline coefficients and method D1</a></li>
-<li><a href="#pooling-with-fs-including-spline-coefficients-and-method-mpr">Pooling with FS including spline coefficients and method MPR</a></li>
+<li><a href="#pooling-without-bw-and-method-d1">Pooling without BW and method D1</a></li>
+<li><a href="#pooling-with-fw-and-method-mpr">Pooling with FW and method MPR</a></li>
+<li><a href="#pooling-with-fw-including-interaction-terms-and-method-d1">Pooling with FW including interaction terms and method D1</a></li>
+<li><a href="#pooling-with-bw-including-spline-coefficients-and-method-d1">Pooling with BW including spline coefficients and method D1</a></li>
+<li><a href="#pooling-with-fw-including-spline-coefficients-and-method-mpr">Pooling with FW including spline coefficients and method MPR</a></li>
 </ul></li>
 </ul>
-<div id="pooling-without-bs-and-method-d1" class="section level2">
-<h2>Pooling without BS and method D1</h2>
+<div id="pooling-without-bw-and-method-d1" class="section level2">
+<h2>Pooling without BW and method D1</h2>
 <p>If you set p.crit at 1 than no selection of variables takes place. Either using direction = “FW” or direction = “BW” will produce the same result.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(psfmi)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  pool_coxr <span class="ot">&lt;-</span> <span class="fu">psfmi_coxr</span>(<span class="at">data=</span>lbpmicox, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, <span class="at">time=</span><span class="st">&quot;Time&quot;</span>, <span class="at">status=</span><span class="st">&quot;Status&quot;</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">predictors=</span><span class="fu">c</span>(<span class="st">&quot;Duration&quot;</span>, <span class="st">&quot;Radiation&quot;</span>, <span class="st">&quot;Onset&quot;</span>, <span class="st">&quot;Function&quot;</span>, <span class="st">&quot;Age&quot;</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Previous&quot;</span>, <span class="st">&quot;Tampascale&quot;</span>, <span class="st">&quot;JobControl&quot;</span>, <span class="st">&quot;JobDemand&quot;</span>, <span class="st">&quot;Social&quot;</span>), <span class="at">p.crit=</span><span class="dv">1</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat.predictors=</span><span class="fu">c</span>(<span class="st">&quot;Expect_cat&quot;</span>), <span class="at">method=</span><span class="st">&quot;D1&quot;</span>, <span class="at">direction =</span> <span class="st">&quot;BW&quot;</span>)</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(psfmi)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  pool_coxr <span class="ot">&lt;-</span> <span class="fu">psfmi_coxr</span>(<span class="at">data=</span>lbpmicox, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">formula =</span> <span class="fu">Surv</span>(Time, Status) <span class="sc">~</span> Duration <span class="sc">+</span> Radiation <span class="sc">+</span> Onset <span class="sc">+</span> </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                Function <span class="sc">+</span> Age <span class="sc">+</span> Previous <span class="sc">+</span> Tampascale <span class="sc">+</span> JobControl <span class="sc">+</span> </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                JobDemand <span class="sc">+</span> Social <span class="sc">+</span> <span class="fu">factor</span>(Expect_cat), <span class="at">p.crit=</span><span class="dv">1</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">method=</span><span class="st">&quot;D1&quot;</span>, <span class="at">direction =</span> <span class="st">&quot;BW&quot;</span>)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>RR_model</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`Step 1 - no variables removed -`</span></span>
@@ -192,59 +199,129 @@ the following pooling methods: RR (Rubin’s Rules), D1, D2, and MPR (Median R R
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9  0.9783958 0.9488992 1.0088093</span></span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 0.9499476 0.9043761 0.9978154</span></span>
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11 1.2754457 0.8082175 2.0127772</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12 1.2548993 0.8452496 1.8630856</span></span></code></pre></div>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12 1.2548993 0.8452496 1.8630856</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>multiparm</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`Step 1 - no variables removed -`</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                    p-values D1 F-statistic</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Duration           0.052418576   3.7623639</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Radiation          0.625104588   0.2387580</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Onset              0.594088831   0.2840039</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Function           0.009371567   6.7517650</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Age                0.250982797   1.3178380</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Previous           0.621503127   0.2437614</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Tampascale         0.099111558   2.7270949</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; JobControl         0.314440908   1.0119309</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; JobDemand          0.159143091   1.9823588</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Social             0.039289895   4.2483236</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; factor(Expect_cat) 0.485351826   0.7228839</span></span></code></pre></div>
 <p>Back to <a href="#examples">Examples</a></p>
 </div>
-<div id="pooling-with-fs-and-method-mpr" class="section level2">
-<h2>Pooling with FS and method MPR</h2>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(psfmi)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  pool_coxr <span class="ot">&lt;-</span> <span class="fu">psfmi_coxr</span>(<span class="at">data=</span>lbpmicox, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, <span class="at">time=</span><span class="st">&quot;Time&quot;</span>, <span class="at">status=</span><span class="st">&quot;Status&quot;</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">predictors=</span><span class="fu">c</span>(<span class="st">&quot;Duration&quot;</span>, <span class="st">&quot;Radiation&quot;</span>, <span class="st">&quot;Onset&quot;</span>, <span class="st">&quot;Function&quot;</span>, <span class="st">&quot;Age&quot;</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Previous&quot;</span>, <span class="st">&quot;Tampascale&quot;</span>), <span class="at">p.crit=</span><span class="fl">0.05</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat.predictors=</span><span class="fu">c</span>(<span class="st">&quot;Expect_cat&quot;</span>), <span class="at">method=</span><span class="st">&quot;MPR&quot;</span>, <span class="at">direction =</span> <span class="st">&quot;FW&quot;</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Entered at Step 1 is - Function</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Entered at Step 2 is - Duration</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Selection correctly terminated, </span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No new variables entered the model</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>RR_model_final</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`Final model`</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       term     estimate   std.error statistic       df      p.value        HR</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 Duration -0.007961913 0.003722934 -2.138612 189.0119 0.0337507152 0.9920697</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 Function  0.056799291 0.015453322  3.675539 189.0119 0.0003091121 1.0584434</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   lower.EXP upper.EXP</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 0.9848108 0.9993821</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 1.0266655 1.0912048</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>predictors_in</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          Duration Radiation Onset Function Age Previous Tampascale</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1          0         0     0        1   0        0          0</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2          1         0     0        0   0        0          0</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Included        1         0     0        1   0        0          0</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          factor(Expect_cat)</span></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1                    0</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2                    0</span></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Included                  0</span></span></code></pre></div>
+<div id="pooling-with-fw-and-method-mpr" class="section level2">
+<h2>Pooling with FW and method MPR</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(psfmi)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  pool_coxr <span class="ot">&lt;-</span> <span class="fu">psfmi_coxr</span>(<span class="at">data=</span>lbpmicox, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">formula =</span> <span class="fu">Surv</span>(Time, Status) <span class="sc">~</span> Duration <span class="sc">+</span> Radiation <span class="sc">+</span> Onset <span class="sc">+</span> </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                Function <span class="sc">+</span> Age <span class="sc">+</span> Previous <span class="sc">+</span> Tampascale <span class="sc">+</span> JobControl <span class="sc">+</span> </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                JobDemand <span class="sc">+</span> Social <span class="sc">+</span> <span class="fu">factor</span>(Expect_cat), <span class="at">p.crit=</span><span class="fl">0.05</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">method=</span><span class="st">&quot;D1&quot;</span>, <span class="at">direction =</span> <span class="st">&quot;FW&quot;</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mitml::testModels(fit1, fit0, method = method): The &#39;model&#39; and</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;null.model&#39; arguments appear to include objects of different classes. Results</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; may not be trustworthy.</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mitml::testModels(fit1, fit0, method = method): The &#39;model&#39; and</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;null.model&#39; arguments appear to include objects of different classes. Results</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; may not be trustworthy.</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mitml::testModels(fit1, fit0, method = method): The &#39;model&#39; and</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;null.model&#39; arguments appear to include objects of different classes. Results</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; may not be trustworthy.</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mitml::testModels(fit1, fit0, method = method): The &#39;model&#39; and</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;null.model&#39; arguments appear to include objects of different classes. Results</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; may not be trustworthy.</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mitml::testModels(fit1, fit0, method = method): The &#39;model&#39; and</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;null.model&#39; arguments appear to include objects of different classes. Results</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; may not be trustworthy.</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mitml::testModels(fit1, fit0, method = method): The &#39;model&#39; and</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;null.model&#39; arguments appear to include objects of different classes. Results</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; may not be trustworthy.</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mitml::testModels(fit1, fit0, method = method): The &#39;model&#39; and</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;null.model&#39; arguments appear to include objects of different classes. Results</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; may not be trustworthy.</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mitml::testModels(fit1, fit0, method = method): The &#39;model&#39; and</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;null.model&#39; arguments appear to include objects of different classes. Results</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; may not be trustworthy.</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mitml::testModels(fit1, fit0, method = method): The &#39;model&#39; and</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;null.model&#39; arguments appear to include objects of different classes. Results</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; may not be trustworthy.</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mitml::testModels(fit1, fit0, method = method): The &#39;model&#39; and</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;null.model&#39; arguments appear to include objects of different classes. Results</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; may not be trustworthy.</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mitml::testModels(fit1, fit0, method = method): The &#39;model&#39; and</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;null.model&#39; arguments appear to include objects of different classes. Results</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; may not be trustworthy.</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Entered at Step 1 is - Function</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Entered at Step 2 is - Social</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Entered at Step 3 is - Duration</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Selection correctly terminated, </span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No new variables entered the model</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>RR_model_final</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`Final model`</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       term     estimate   std.error statistic       df      p.value        HR</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 Duration -0.007605055 0.003742491 -2.032084 188.0122 0.0435521399 0.9924238</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 Function  0.056490633 0.015414714  3.664722 188.0122 0.0003219893 1.0581167</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3   Social -0.051992380 0.022611457 -2.299382 188.0122 0.0225821316 0.9493361</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   lower.EXP upper.EXP</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 0.9851240 0.9997776</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 1.0264257 1.0907861</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 0.9079217 0.9926396</span></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>RR_model_final</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`Final model`</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       term     estimate   std.error statistic       df      p.value        HR</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 Duration -0.007605055 0.003742491 -2.032084 188.0122 0.0435521399 0.9924238</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 Function  0.056490633 0.015414714  3.664722 188.0122 0.0003219893 1.0581167</span></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3   Social -0.051992380 0.022611457 -2.299382 188.0122 0.0225821316 0.9493361</span></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   lower.EXP upper.EXP</span></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 0.9851240 0.9997776</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 1.0264257 1.0907861</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 0.9079217 0.9926396</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>predictors_in</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          Duration Radiation Onset Function Age Previous Tampascale JobControl</span></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1          0         0     0        1   0        0          0          0</span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2          0         0     0        0   0        0          0          0</span></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 3          1         0     0        0   0        0          0          0</span></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Included        1         0     0        1   0        0          0          0</span></span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          JobDemand Social factor(Expect_cat)</span></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1           0      0                  0</span></span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2           0      1                  0</span></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 3           0      0                  0</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Included         0      1                  0</span></span></code></pre></div>
 <p>Back to <a href="#examples">Examples</a></p>
 </div>
-<div id="pooling-with-fs-including-interaction-terms-and-method-d1" class="section level2">
-<h2>Pooling with FS including interaction terms and method D1</h2>
-<p>Pooling Cox regression models over 5 imputed datasets with backward selection using a p-value of 0.05 and as method D2 including interaction terms with a categorical predictor and forcing the predictor Tampascale in the models during backward selection.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(psfmi)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  pool_coxr <span class="ot">&lt;-</span> <span class="fu">psfmi_coxr</span>(<span class="at">data=</span>lbpmicox, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, <span class="at">time=</span><span class="st">&quot;Time&quot;</span>, <span class="at">status=</span><span class="st">&quot;Status&quot;</span>,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">predictors=</span><span class="fu">c</span>(<span class="st">&quot;Duration&quot;</span>, <span class="st">&quot;Previous&quot;</span>,  <span class="st">&quot;Radiation&quot;</span>, <span class="st">&quot;Onset&quot;</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Function&quot;</span>, <span class="st">&quot;Tampascale&quot;</span> ), <span class="at">p.crit=</span><span class="fl">0.05</span>, <span class="at">cat.predictors=</span><span class="fu">c</span>(<span class="st">&quot;Satisfaction&quot;</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Expect_cat&quot;</span>), <span class="at">int.predictors=</span><span class="fu">c</span>(<span class="st">&quot;Tampascale:Radiation&quot;</span>,</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Expect_cat:Tampascale&quot;</span>), <span class="at">keep.predictors =</span> <span class="st">&quot;Tampascale&quot;</span>, <span class="at">method=</span><span class="st">&quot;D1&quot;</span>, <span class="at">direction =</span> <span class="st">&quot;FW&quot;</span>)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Entered at Step 1 is - Function</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Entered at Step 2 is - Duration</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Selection correctly terminated, </span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No new variables entered the model</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<div id="pooling-with-fw-including-interaction-terms-and-method-d1" class="section level2">
+<h2>Pooling with FW including interaction terms and method D1</h2>
+<p>Pooling Cox regression models over 5 imputed datasets with backward selection using a p-value of 0.05 and as method D1 including interaction terms with a categorical predictor and forcing the predictor Tampascale in the models during backward selection.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(psfmi)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  pool_coxr <span class="ot">&lt;-</span> <span class="fu">psfmi_coxr</span>(<span class="at">data=</span>lbpmicox, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">formula =</span> <span class="fu">Surv</span>(Time, Status) <span class="sc">~</span> Duration <span class="sc">+</span> Radiation <span class="sc">+</span> Onset <span class="sc">+</span> </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                Function <span class="sc">+</span> Age <span class="sc">+</span> Previous <span class="sc">+</span> Tampascale <span class="sc">+</span> <span class="fu">factor</span>(Expect_cat) <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                <span class="fu">factor</span>(Satisfaction) <span class="sc">+</span> Tampascale<span class="sc">:</span>Radiation <span class="sc">+</span> </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                <span class="fu">factor</span>(Expect_cat)<span class="sc">:</span>Tampascale, <span class="at">keep.predictors =</span> <span class="st">&quot;Tampascale&quot;</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">p.crit=</span><span class="fl">0.05</span>, <span class="at">method=</span><span class="st">&quot;D1&quot;</span>, <span class="at">direction =</span> <span class="st">&quot;FW&quot;</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Entered at Step 1 is - Function</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Entered at Step 2 is - Duration</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Selection correctly terminated, </span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No new variables entered the model</span></span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>RR_model_final</span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`Final model`</span></span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         term     estimate   std.error statistic       df     p.value        HR</span></span>
@@ -255,41 +332,50 @@ the following pooling methods: RR (Rubin’s Rules), D1, D2, and MPR (Median R R
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 0.9844091 0.9990955</span></span>
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 0.9575624 1.0094108</span></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 1.0179701 1.0861332</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>predictors_in</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          Duration Previous Radiation Onset Function Tampascale</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1          0        0         0     0        1          1</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2          1        0         0     0        0          1</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Included        1        0         0     0        1          1</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          factor(Satisfaction) factor(Expect_cat) Tampascale*Radiation</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1                      0                  0                    0</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2                      0                  0                    0</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Included                    0                  0                    0</span></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          factor(Expect_cat)*Tampascale</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1                               0</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2                               0</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Included                             0</span></span></code></pre></div>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>RR_model_final</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`Final model`</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         term     estimate   std.error statistic       df     p.value        HR</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1   Duration -0.008309329 0.003753484 -2.213765 187.9452 0.028047868 0.9917251</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 Tampascale -0.016998788 0.013360456 -1.272321 177.6436 0.204921997 0.9831449</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3   Function  0.050217190 0.016427330  3.056930 187.0360 0.002563622 1.0514994</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   lower.EXP upper.EXP</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 0.9844091 0.9990955</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 0.9575624 1.0094108</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 1.0179701 1.0861332</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>predictors_in</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          Duration Radiation Onset Function Age Previous Tampascale</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1          0         0     0        1   0        0          1</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2          1         0     0        0   0        0          1</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Included        1         0     0        1   0        0          1</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          factor(Expect_cat) factor(Satisfaction) Radiation*Tampascale</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1                    0                    0                    0</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2                    0                    0                    0</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Included                  0                    0                    0</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          Tampascale*factor(Expect_cat)</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1                               0</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2                               0</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Included                             0</span></span></code></pre></div>
 <p>Back to <a href="#examples">Examples</a></p>
 </div>
-<div id="pooling-with-bs-including-spline-coefficients-and-method-d1" class="section level2">
-<h2>Pooling with BS including spline coefficients and method D1</h2>
+<div id="pooling-with-bw-including-spline-coefficients-and-method-d1" class="section level2">
+<h2>Pooling with BW including spline coefficients and method D1</h2>
 <p>Pooling Cox regression models over 5 imputed datasets with backward selection using a p-value of 0.05 and as method D1 including a restricted cubic spline predictor and forcing Tampascale in the models during backward selection.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(psfmi)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  pool_coxr <span class="ot">&lt;-</span> <span class="fu">psfmi_coxr</span>(<span class="at">data=</span>lbpmicox, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, <span class="at">time=</span><span class="st">&quot;Time&quot;</span>, <span class="at">status=</span><span class="st">&quot;Status&quot;</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">predictors=</span><span class="fu">c</span>(<span class="st">&quot;Duration&quot;</span>, <span class="st">&quot;Previous&quot;</span>,  <span class="st">&quot;Radiation&quot;</span>, <span class="st">&quot;Onset&quot;</span>, <span class="st">&quot;Function&quot;</span>), </span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">p.crit=</span><span class="fl">0.05</span>, <span class="at">cat.predictors=</span><span class="fu">c</span>(<span class="st">&quot;Satisfaction&quot;</span>), <span class="at">spline.predictors=</span><span class="fu">c</span>(<span class="st">&quot;Tampascale&quot;</span>),</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">int.predictors=</span><span class="fu">c</span>(<span class="st">&quot;Tampascale:Radiation&quot;</span>), <span class="at">keep.predictors =</span> <span class="st">&quot;Tampascale&quot;</span>, </span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">nknots=</span><span class="dv">3</span>, <span class="at">method=</span><span class="st">&quot;D1&quot;</span>, <span class="at">direction =</span> <span class="st">&quot;BW&quot;</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Removed at Step 1 is - factor(Satisfaction)</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Removed at Step 2 is - rcs(Tampascale,3)*Radiation</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Removed at Step 3 is - Onset</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Removed at Step 4 is - Radiation</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Removed at Step 5 is - Previous</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Selection correctly terminated, </span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No more variables removed from the model</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(psfmi)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  pool_coxr <span class="ot">&lt;-</span> <span class="fu">psfmi_coxr</span>(<span class="at">data=</span>lbpmicox, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">formula =</span> <span class="fu">Surv</span>(Time, Status) <span class="sc">~</span> Duration <span class="sc">+</span> Radiation <span class="sc">+</span> Onset <span class="sc">+</span> </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                Function <span class="sc">+</span> Previous <span class="sc">+</span> <span class="fu">rcs</span>(Tampascale, <span class="dv">3</span>) <span class="sc">+</span> </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                <span class="fu">factor</span>(Satisfaction) <span class="sc">+</span> <span class="fu">rcs</span>(Tampascale, <span class="dv">3</span>)<span class="sc">:</span>Radiation,  </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">keep.predictors =</span> <span class="st">&quot;Tampascale&quot;</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">p.crit=</span><span class="fl">0.05</span>, <span class="at">method=</span><span class="st">&quot;D1&quot;</span>, <span class="at">direction =</span> <span class="st">&quot;BW&quot;</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Removed at Step 1 is - factor(Satisfaction)</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Removed at Step 2 is - Radiation*rcs(Tampascale,3)</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Removed at Step 3 is - Onset</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Removed at Step 4 is - Radiation</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Removed at Step 5 is - Previous</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Selection correctly terminated, </span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No more variables removed from the model</span></span>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>RR_model_final</span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`Step 6`</span></span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                            term    estimate  std.error statistic       df</span></span>
@@ -302,62 +388,75 @@ the following pooling methods: RR (Rubin’s Rules), D1, D2, and MPR (Median R R
 <span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 0.001104361 1.0568545 1.0226366 1.0922174</span></span>
 <span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 0.017380618 0.9364698 0.8873345 0.9883259</span></span>
 <span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 0.048860903 1.0612279 1.0003023 1.1258642</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>predictors_out</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         Duration Previous Radiation Onset Function factor(Satisfaction)</span></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1         0        0         0     0        0                    1</span></span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2         0        0         0     0        0                    0</span></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 3         0        0         0     1        0                    0</span></span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 4         0        0         1     0        0                    0</span></span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 5         0        1         0     0        0                    0</span></span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Removed        0        1         1     1        0                    1</span></span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         rcs(Tampascale,3) rcs(Tampascale,3)*Radiation</span></span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1                  0                           0</span></span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2                  0                           1</span></span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 3                  0                           0</span></span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 4                  0                           0</span></span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 5                  0                           0</span></span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Removed                 0                           1</span></span></code></pre></div>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>RR_model_final</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`Step 6`</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                            term    estimate  std.error statistic       df</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1                      Duration -0.00834864 0.00375033 -2.226108 186.9008</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2                      Function  0.05529708 0.01668254  3.314668 184.6679</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  rcs(Tampascale, 3)Tampascale -0.06563800 0.02724068 -2.409558 129.2769</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 rcs(Tampascale, 3)Tampascale&#39;  0.05942661 0.02982168  1.992732 106.0096</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       p.value        HR lower.EXP upper.EXP</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 0.027201742 0.9916861 0.9843763 0.9990502</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 0.001104361 1.0568545 1.0226366 1.0922174</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 0.017380618 0.9364698 0.8873345 0.9883259</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 0.048860903 1.0612279 1.0003023 1.1258642</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>predictors_in</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 x 1</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   value            </span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;            </span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 Duration         </span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 Function         </span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 rcs(Tampascale,3)</span></span></code></pre></div>
 <p>Back to <a href="#examples">Examples</a></p>
 </div>
-<div id="pooling-with-fs-including-spline-coefficients-and-method-mpr" class="section level2">
-<h2>Pooling with FS including spline coefficients and method MPR</h2>
+<div id="pooling-with-fw-including-spline-coefficients-and-method-mpr" class="section level2">
+<h2>Pooling with FW including spline coefficients and method MPR</h2>
 <p>Pooling Cox regression models over 5 imputed datasets with forward selection using a p-value of 0.05 and as method MPR including a restricted cubic spline predictor and forcing Tampascale in the models during forward selection.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(psfmi)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  pool_coxr <span class="ot">&lt;-</span> <span class="fu">psfmi_coxr</span>(<span class="at">data=</span>lbpmicox, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, <span class="at">time=</span><span class="st">&quot;Time&quot;</span>, <span class="at">status=</span><span class="st">&quot;Status&quot;</span>,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">predictors=</span><span class="fu">c</span>(<span class="st">&quot;Duration&quot;</span>, <span class="st">&quot;Previous&quot;</span>,  <span class="st">&quot;Radiation&quot;</span>, <span class="st">&quot;Onset&quot;</span>, <span class="st">&quot;Function&quot;</span>), </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">p.crit=</span><span class="fl">0.05</span>, <span class="at">cat.predictors=</span><span class="fu">c</span>(<span class="st">&quot;Satisfaction&quot;</span>), <span class="at">spline.predictors=</span><span class="fu">c</span>(<span class="st">&quot;Tampascale&quot;</span>),</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">int.predictors=</span><span class="fu">c</span>(<span class="st">&quot;Tampascale:Radiation&quot;</span>), <span class="at">keep.predictors =</span> <span class="st">&quot;Tampascale&quot;</span>, </span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">nknots=</span><span class="dv">3</span>, <span class="at">method=</span><span class="st">&quot;MPR&quot;</span>, <span class="at">direction =</span> <span class="st">&quot;FW&quot;</span>)</span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(psfmi)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  pool_coxr <span class="ot">&lt;-</span> <span class="fu">psfmi_coxr</span>(<span class="at">data=</span>lbpmicox, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">formula =</span> <span class="fu">Surv</span>(Time, Status) <span class="sc">~</span> Duration <span class="sc">+</span> Radiation <span class="sc">+</span> Onset <span class="sc">+</span> </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                Function <span class="sc">+</span> Previous <span class="sc">+</span> <span class="fu">rcs</span>(Tampascale, <span class="dv">3</span>) <span class="sc">+</span> </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                <span class="fu">factor</span>(Satisfaction) <span class="sc">+</span> <span class="fu">rcs</span>(Tampascale, <span class="dv">3</span>)<span class="sc">:</span>Radiation,  </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">keep.predictors =</span> <span class="st">&quot;Tampascale&quot;</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">p.crit=</span><span class="fl">0.05</span>, <span class="at">method=</span><span class="st">&quot;MPR&quot;</span>, <span class="at">direction =</span> <span class="st">&quot;FW&quot;</span>)</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Entered at Step 1 is - Function</span></span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Entered at Step 2 is - Duration</span></span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Selection correctly terminated, </span></span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No new variables entered the model</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>RR_model_final</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`Final model`</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                            term    estimate  std.error statistic       df</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1                      Duration -0.00834864 0.00375033 -2.226108 186.9008</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  rcs(Tampascale, 3)Tampascale -0.06563800 0.02724068 -2.409558 129.2769</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 rcs(Tampascale, 3)Tampascale&#39;  0.05942661 0.02982168  1.992732 106.0096</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4                      Function  0.05529708 0.01668254  3.314668 184.6679</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       p.value        HR lower.EXP upper.EXP</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 0.027201742 0.9916861 0.9843763 0.9990502</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 0.017380618 0.9364698 0.8873345 0.9883259</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 0.048860903 1.0612279 1.0003023 1.1258642</span></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 0.001104361 1.0568545 1.0226366 1.0922174</span></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>predictors_in</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          Duration Previous Radiation Onset Function factor(Satisfaction)</span></span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1          0        0         0     0        1                    0</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2          1        0         0     0        0                    0</span></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Included        1        0         0     0        1                    0</span></span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          rcs(Tampascale,3) rcs(Tampascale,3)*Radiation</span></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1                   1                           0</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2                   1                           0</span></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Included                 1                           0</span></span></code></pre></div>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>RR_model_final</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`Final model`</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                            term    estimate  std.error statistic       df</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1                      Duration -0.00834864 0.00375033 -2.226108 186.9008</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  rcs(Tampascale, 3)Tampascale -0.06563800 0.02724068 -2.409558 129.2769</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 rcs(Tampascale, 3)Tampascale&#39;  0.05942661 0.02982168  1.992732 106.0096</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4                      Function  0.05529708 0.01668254  3.314668 184.6679</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       p.value        HR lower.EXP upper.EXP</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 0.027201742 0.9916861 0.9843763 0.9990502</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 0.017380618 0.9364698 0.8873345 0.9883259</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 0.048860903 1.0612279 1.0003023 1.1258642</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 0.001104361 1.0568545 1.0226366 1.0922174</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>RR_model_final</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`Final model`</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                            term    estimate  std.error statistic       df</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1                      Duration -0.00834864 0.00375033 -2.226108 186.9008</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  rcs(Tampascale, 3)Tampascale -0.06563800 0.02724068 -2.409558 129.2769</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 rcs(Tampascale, 3)Tampascale&#39;  0.05942661 0.02982168  1.992732 106.0096</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4                      Function  0.05529708 0.01668254  3.314668 184.6679</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       p.value        HR lower.EXP upper.EXP</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 0.027201742 0.9916861 0.9843763 0.9990502</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 0.017380618 0.9364698 0.8873345 0.9883259</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 0.048860903 1.0612279 1.0003023 1.1258642</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 0.001104361 1.0568545 1.0226366 1.0922174</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  pool_coxr<span class="sc">$</span>predictors_in</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          Duration Radiation Onset Function Previous factor(Satisfaction)</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1          0         0     0        1        0                    0</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2          1         0     0        0        0                    0</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Included        1         0     0        1        0                    0</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          rcs(Tampascale,3) Radiation*rcs(Tampascale,3)</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 1                   1                           0</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Step 2                   1                           0</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Included                 1                           0</span></span></code></pre></div>
 <p>Back to <a href="#examples">Examples</a></p>
 </div>
 </div>

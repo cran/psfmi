@@ -1,4 +1,4 @@
-#' Evaluate model performance of logistic prediction models in Multiply Imputed datasets
+#' Internal validation and performance of logistic prediction models across Multiply Imputed datasets
 #'
 #' \code{psfmi_perform} Evaluate Performance of logistic regression models selected with
 #'  the \code{psfmi_lr} function of the \code{psfmi} package by using cross-validation
@@ -32,11 +32,13 @@
 #'  showing the cross-validation apparent (train) and test results. Set to FALSE to only give test results.
 #' @param cal.plot If TRUE a calibration plot is generated. Default is FALSE. Can be used in combination
 #'  with int_val = FALSE.
-#' @param plot.indiv If TRUE calibration plots for each separate imputed dataset are generated,
-#'  otherwise all calibration plots are plotted in one figure.
-#' @param groups_cal A numerical scalar. Number of groups used on the calibration plot.
-#'  Default is 10. If the range of predicted probabilities is too low, less groups can be
-#'  chosen.
+#' @param plot.method If "mean" one calibration plot is generated, first taking the 
+#'   mean of the linear predictor across the multiply imputed datasets (default), if 
+#'   "individual" the calibration plot of each imputed dataset is plotted, 
+#'   if "overlay" calibration plots from each imputed datasets are plotted in one figure.       
+#' @param groups_cal A numerical scalar. Number of groups used on the calibration plot and. 
+#'  for the Hosmer and Lemeshow test. Default is 10. If the range of predicted probabilities. 
+#'  is low, less than 10 groups can be chosen, but not < 3. 
 #' @param miceImp Wrapper function around the \code{mice} function.
 #' @param ...  Arguments as predictorMatrix, seed, maxit, etc that can be adjusted for
 #'  the \code{mice} function. To be used in combination with validation methods cv_MI,
@@ -99,39 +101,35 @@
 #' 
 #' @author Martijn Heymans, 2020
 #'
-#' @examples
-#' pool_lr <- psfmi_lr(data=lbpmilr, formula = Chronic ~ Pain + JobDemands + rcs(Tampascale, 3) +
-#'            factor(Satisfaction) + Smoking, p.crit = 1, direction="FW",
-#'            nimp=5, impvar="Impnr", method="D1")
-#'            
-#' pool_lr$RR_model
-#'
-#' res_perf <- psfmi_perform(pool_lr, val_method = "cv_MI", data_orig = lbp_orig, folds=3,
-#'             nimp_cv = 2, p.crit=0.05, BW=TRUE, miceImp = miceImp, printFlag = FALSE)
-#'             
-#' res_perf
-#'
-#'\dontrun{
-#'  set.seed(200)
-#'   res_val <- psfmi_perform(pobj, val_method = "boot_MI", data_orig = lbp_orig, nboot = 5,
-#'   p.crit=0.05, BW=TRUE, miceImp = miceImp, nimp_mice = 5, printFlag = FALSE, direction = "FW")
-#'   
-#'   res_val$stats_val
-#'}
-#'
 #' @export
-psfmi_perform <- function(pobj, val_method = NULL, data_orig = NULL, int_val = TRUE, nboot = 10,
-                          folds=3, nimp_cv = 5, nimp_mice = 5, p.crit = 1, BW = FALSE,
-                          direction = NULL, cv_naive_appt=FALSE,
-                          cal.plot=FALSE, plot.indiv=FALSE, groups_cal=10, miceImp, ...)
+psfmi_perform <- function(pobj, 
+                          val_method = NULL, 
+                          data_orig = NULL, 
+                          int_val = TRUE, 
+                          nboot = 10,
+                          folds=3, 
+                          nimp_cv = 5, 
+                          nimp_mice = 5, 
+                          p.crit = 1, 
+                          BW = FALSE,
+                          direction = NULL, 
+                          cv_naive_appt=FALSE,
+                          cal.plot=FALSE, 
+                          plot.method="mean", 
+                          groups_cal=5, 
+                          miceImp, 
+                          ...)
 {
   ##############################
   #General Settings
+  
+  .Deprecated("psfmi_validate")
+  
   call <- match.call()
   
   if(class(pobj)!="pmods")
     stop("\n", "Object should be of type pmods", "\n")
-  if(pobj$model_type=="survival")
+  if(pobj$model_type!="binomial")
     stop("\n", "Methods only available for models of type binomial", "\n")
   if(is_empty(pobj$predictors_final))
     stop("\n", "Model is empty. Cannot validate empty model", "\n")
@@ -139,7 +137,7 @@ psfmi_perform <- function(pobj, val_method = NULL, data_orig = NULL, int_val = T
     stop("\n", "Validation method not defined, choose boot_MI, MI_boot, cv_MI, cv_MI_RR or MI_cv_naive")
   
   if(!int_val){
-    message("\n", "Apparent performance measures from multiply imputed datasets", "\n")
+    message("\n", "No validation - Apparent performance", "\n")
     Y <- c(paste(pobj$Outcome, paste("~")))
     if(is_empty(pobj$predictors_final)) {
       pobj$predictors_final <- 1
@@ -149,10 +147,11 @@ psfmi_perform <- function(pobj, val_method = NULL, data_orig = NULL, int_val = T
     }
     
     perform_mi_orig <- pool_performance(data=pobj$data, nimp = pobj$nimp,
-                                        impvar=pobj$impvar, Outcome = pobj$Outcome,
-                                        predictors = pobj$predictors_final, cal.plot=cal.plot,
-                                        plot.indiv=plot.indiv,
-                                        groups_cal = groups_cal)
+                                        impvar=pobj$impvar,
+                                        formula = fm,
+                                        cal.plot=cal.plot,
+                                        plot.method=plot.method,
+                                        groups_cal=groups_cal)
     return(perform_mi_orig)
   }
   if(int_val){
@@ -194,7 +193,6 @@ psfmi_perform <- function(pobj, val_method = NULL, data_orig = NULL, int_val = T
     
     # Specific for boot_MI and MI_boot
     if(val_method=="boot_MI" | val_method=="MI_boot") {
-      
       if(val_method=="boot_MI"){
         # Part boot_MI
         if(is_empty(data_orig))
@@ -205,7 +203,8 @@ psfmi_perform <- function(pobj, val_method = NULL, data_orig = NULL, int_val = T
           stop("\n", "Number of imputed datasets for MI_boot must be > 1", "\n")
         pobjboot <-
           boot_MI(pobj, data_orig = data_orig, nboot = nboot,
-                  nimp_mice = nimp_mice, p.crit = p.crit, direction = direction, miceImp = miceImp, ...)
+                  nimp_mice = nimp_mice, p.crit = p.crit, direction = direction, 
+                  miceImp = miceImp, ...)
         if(p.crit==1)
           message("\n", "p.crit = 1, validation is done without variable selection", "\n")
         return(pobjboot)

@@ -7,9 +7,10 @@ knitr::opts_chunk$set(
 ## -----------------------------------------------------------------------------
 
   library(psfmi)
-  pool_lr <- psfmi_lr(data=lbpmilr, nimp=5, impvar="Impnr", Outcome="Chronic",
-  predictors=c("Gender", "Smoking", "Function", "JobControl",
-  "JobDemands", "SocialSupport"), method="D1")
+  pool_lr <- psfmi_lr(data=lbpmilr, nimp=5, impvar="Impnr", 
+                      formula = Chronic ~ Gender + Smoking + 
+                      Function + JobControl + JobDemands + SocialSupport, 
+                      method="D1")
   
   pool_lr$RR_model
  
@@ -17,67 +18,74 @@ knitr::opts_chunk$set(
 ## -----------------------------------------------------------------------------
 
   library(psfmi)
-  pool_lr <- psfmi_lr(data=lbpmilr, nimp=5, impvar="Impnr", Outcome="Chronic",
-  predictors=c("Gender", "Smoking", "Function", "JobControl",
-  "JobDemands", "SocialSupport"), keep.predictors = "Smoking",
-  p.crit = 0.05, method="D1", direction = "BW")
+  pool_lr <- psfmi_lr(data=lbpmilr, nimp=5, impvar="Impnr", 
+                      formula = Chronic ~ Gender + Smoking + 
+                      Function + JobControl + JobDemands + SocialSupport, 
+                      keep.predictors = "Smoking", method="D1", p.crit=0.05, 
+                      direction="BW")
   
   pool_lr$RR_model_final
-  
+  pool_lr$multiparm_final
   pool_lr$predictors_out
   
 
 ## -----------------------------------------------------------------------------
 
   library(psfmi)
-  pool_lr <- psfmi_lr(data=lbpmilr, nimp=5, impvar="Impnr", Outcome="Chronic",
-  predictors=c("Gender", "Smoking", "Function", "JobControl",
-  "JobDemands", "SocialSupport"), keep.predictors = "Smoking",
-  p.crit = 0.05, method="MPR", direction = "BW")
+  pool_lr <- psfmi_lr(data=lbpmilr, nimp=5, impvar="Impnr", 
+                      formula = Chronic ~ Gender + Smoking + 
+                      Function + JobControl + JobDemands + SocialSupport, 
+                      keep.predictors = "Smoking", method="MPR", p.crit=0.05, 
+                      direction="BW")
   
   pool_lr$RR_model_final
-  
-  pool_lr$predictors_out
+  pool_lr$multiparm_final
+  pool_lr$predictors_out  
   
 
 ## -----------------------------------------------------------------------------
 
   library(psfmi)
-  pool_lr <- psfmi_lr(data=lbpmilr, nimp=5, impvar="Impnr", Outcome="Chronic",
-  predictors=c("Gender", "Smoking", "Function", "JobControl"), 
-  p.crit = 0.05, cat.predictors = c("Carrying", "Satisfaction"),
-  int.predictors = c("Carrying:Smoking", "Gender:Smoking"), method="D2", direction = "BW")
+  pool_lr <- psfmi_lr(data=lbpmilr, nimp=5, impvar="Impnr", 
+                      formula = Chronic ~ Gender + Smoking + 
+                        Function + JobControl + factor(Carrying) + 
+                        factor(Satisfaction) +
+                        factor(Carrying):Smoking + Gender:Smoking, 
+                      method="D2", p.crit=0.05, 
+                      direction="BW")
   
   pool_lr$RR_model_final
-  
-  pool_lr$predictors_out
+  pool_lr$multiparm_final
+  pool_lr$predictors_out 
   
 
 ## -----------------------------------------------------------------------------
 
   library(psfmi)
-  pool_lr <- psfmi_lr(data=lbpmilr, nimp=5, impvar="Impnr", Outcome="Chronic",
-  predictors=c("Gender", "Smoking", "Function", "JobControl"), 
-  p.crit = 0.157, cat.predictors = c("Carrying", "Satisfaction"),
-  int.predictors = c("Carrying*Smoking", "Gender*Smoking"),
-  keep.predictors = c("Smoking*Carrying", "JobControl"), method="D1", direction = "FW")
+  pool_lr <- psfmi_lr(data=lbpmilr, nimp=5, impvar="Impnr", 
+                      formula = Chronic ~ Gender + Smoking + 
+                      Function + JobControl + factor(Carrying) + factor(Satisfaction) +
+                        factor(Carrying):Smoking + Gender:Smoking, 
+                      keep.predictors = c("Smoking*Carrying", "JobControl"), method="D1", 
+                      p.crit=0.05, direction="BW")
   
   pool_lr$RR_model_final
-  
-  pool_lr$predictors_in
+  pool_lr$multiparm_final
+  pool_lr$predictors_out 
   
 
 ## -----------------------------------------------------------------------------
 
   library(psfmi)
-  pool_lr <- psfmi_lr(data=lbpmilr, nimp=5, impvar="Impnr", Outcome="Chronic",
-  predictors=c("Gender", "Smoking", "JobControl"), 
-  p.crit = 0.157, cat.predictors = c("Carrying", "Satisfaction"),
-  spline.predictors=c("Function"), int.predictors = c("Carrying:Smoking"), 
-  nknots=3, method="D1", direction = "BW")
+  pool_lr <- psfmi_lr(data=lbpmilr, nimp=5, impvar="Impnr", 
+                      formula = Chronic ~ Gender + Smoking + 
+                      JobControl + factor(Carrying) + factor(Satisfaction) +
+                      factor(Carrying):Smoking + rcs(Function, 3), 
+                      method="D1", 
+                      p.crit=0.05, direction="BW")
   
   pool_lr$RR_model_final
-  
-  pool_lr$predictors_out
+  pool_lr$multiparm_final
+  pool_lr$predictors_out 
 
 

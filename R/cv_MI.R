@@ -72,8 +72,9 @@ cv_MI <- function(pobj, data_orig, folds, nimp_cv, BW, p.crit, miceImp, ...)
       # if BW = TRUE
       if(BW==TRUE){
         pobj_bw <-
-          bw_single(formula = fm_train_temp, data =  data_compl[-idfold[[f]], ],
-                    p.crit = p.crit, keep.predictors = pobj$keep.predictors)
+          glm_bw(formula = fm_train_temp, data =  data_compl[-idfold[[f]], ],
+                    p.crit = p.crit, keep.predictors = pobj$keep.predictors,
+                    model_type="binomial")
 
         if(is_empty(pobj_bw$predictors_final))
           pobj_bw$predictors_final <- 1

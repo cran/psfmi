@@ -14,10 +14,9 @@ knitr::opts_chunk$set(
   data_comp <- complete(imp, action = "long", include = FALSE)
   
   library(psfmi)
-  pool_lr <- psfmi_lr(data=data_comp, nimp=5, impvar=".imp", Outcome="Chronic",
-  predictors=c("Gender", "Smoking", "Function", "JobControl",
-  "JobDemands", "SocialSupport"), method="D1")
-  
+  pool_lr <- psfmi_lr(data=data_comp, nimp=5, impvar=".imp", 
+                      formula=Chronic ~ Gender + Smoking + Function + 
+                      JobControl + JobDemands + SocialSupport, method="D1")
   pool_lr$RR_model
   
  
@@ -32,10 +31,10 @@ knitr::opts_chunk$set(
   data_comp <- complete(imp, action = "long", include = FALSE)
   
   library(psfmi)
-  pool_lr <- psfmi_lr(data=data_comp, nimp=5, impvar=".imp", Outcome="Chronic",
-  predictors=c("Gender", "Smoking", "Function", "JobControl",
-  "JobDemands", "SocialSupport"), p.crit = 0.157, method="D1",
-  direction = "FW")
+  pool_lr <- psfmi_lr(data=data_comp, nimp=5, impvar=".imp", 
+                      formula=Chronic ~ Gender + Smoking + Function + 
+                      JobControl + JobDemands + SocialSupport, 
+                      p.crit = 0.157, method="D1", direction = "FW")
   
   pool_lr$RR_model_final
  

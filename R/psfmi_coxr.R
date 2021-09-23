@@ -1,5 +1,5 @@
 #' Pooling and Predictor selection function for backward or forward selection of
-#' Cox regression models in multiply imputed data.
+#' Cox regression models across multiply imputed data.
 #'
 #' \code{psfmi_coxr} Pooling and backward or forward selection of Cox regression
 #' prediction models in multiply imputed data using selection methods D1, D2 and MPR.
@@ -8,14 +8,14 @@
 #'   The original dataset that contains missing values must be excluded from the
 #'   dataset. The imputed datasets must be distinguished by an imputation variable,
 #'   specified under impvar, and starting by 1.
-#' @param formula A formula object to specify the model as normally used by glm.
+#' @param formula A formula object to specify the model as normally used by coxph.
 #'   See under "Details" and "Examples" how these can be specified. If a formula
 #'   object is used set predictors, cat.predictors, spline.predictors or int.predictors
 #'   at the default value of NULL.
 #' @param nimp A numerical scalar. Number of imputed datasets. Default is 5.
 #' @param impvar A character vector. Name of the variable that distinguishes the
 #' imputed datasets.
-#' @param time Follow up time.
+#' @param time Survival time.
 #' @param status The status variable, normally 0=censoring, 1=event.
 #' @param predictors Character vector with the names of the predictor variables.
 #'   At least one predictor variable has to be defined. Give predictors unique names
@@ -46,23 +46,14 @@
 #'  Spline regression coefficients are defined by using the rcs function for restricted cubic
 #'  splines of the rms package. A minimum number of 3 knots as defined under knots is required.
 #'
-#'  A typical formula object has the form \code{Outcome ~ terms}. Categorical variables has to
-#'  be defined as \code{Outcome ~ factor(variable)}, restricted cubic spline variables as
-#'  \code{Outcome ~ rcs(variable, 3)}. Interaction terms can be defined as
-#'  \code{Outcome ~ variable1*variable2} or \code{Outcome ~ variable1 + variable2 + variable1:variable2}.
-#'  All variables in the terms part have to be separated by a "+". If a formula
+#'  A typical formula object has the form \code{Surv(time, status) ~ terms}. Categorical variables has to
+#'  be defined as \code{Surv(time, status) ~ factor(variable)}, restricted cubic spline variables as
+#'  \code{Surv(time, status) ~ rcs(variable, 3)}. Interaction terms can be defined as
+#'  \code{Surv(time, status) ~ variable1*variable2} or \code{Surv(time, status) ~ variable1 + variable2 + 
+#'  variable1:variable2}. All variables in the terms part have to be separated by a "+". If a formula
 #'  object is used set predictors, cat.predictors, spline.predictors or int.predictors
 #'  at the default value of NULL.
 #'
-#'  pooled p-values at final step according to pooling method as \code{multiparm_final}, and
-#'  at each step as \code{multiparm}, or \code{multiparm_out} (only when direction = "FW"),
-#'  formula object at final step as \code{fm_step_final}, and at each step as \code{fm_step},
-#'  predictors included at each selection step as \code{predictors_in}, predictors excluded
-#'  at each step as \code{predictors_out}, and name of variable to distinguish imputed datasets
-#'  as \code{impvar}, \code{nimp}, \code{Outcome}, \code{method}, \code{p.crit}, \code{call},
-#'  \code{model_type}, direction of selection as \code{direction}, \code{predictors_final} for
-#'  names of predictors in final selection step and \code{predictors_initial} for names of
-#'  predictors in start model.
 #'
 #' @return An object of class \code{pmods} (multiply imputed models) from
 #'  which the following objects can be extracted: 
@@ -144,7 +135,7 @@ psfmi_coxr <- function(data,
     stop("\n", "Method D3 not available for survival data")
   if(is_empty(formula)) {
     if(!all(data[status]==1 | data[status]==0))
-      stop("Outcome should be a 0 - 1 variable")
+      stop("Status should be a 0 - 1 variable")
     
     keep_temp <- keep.predictors
     
@@ -210,7 +201,7 @@ psfmi_coxr <- function(data,
   data <- data.frame(as_tibble(data))
   data <- mutate_if(data, is.factor, ~ as.numeric(as.character(.x)))
   if(!all(data[status]==1 | data[status]==0))
-    stop("Outcome should be a 0 - 1 variable")
+    stop("Status should be a 0 - 1 variable")
   if ((nvar <- ncol(data)) < 2)
     stop("Data should contain at least two columns")
   if(is_empty(impvar))

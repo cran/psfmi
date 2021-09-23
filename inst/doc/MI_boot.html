@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martijn W Heymans" />
 
-<meta name="date" content="2021-01-13" />
+<meta name="date" content="2021-09-23" />
 
 <title>Multiple Imputation and Bootstrapping - Method MI_boot</title>
 
@@ -28,7 +28,14 @@
     </style>
 
 
-<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
@@ -134,7 +141,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <h1 class="title toc-ignore">Multiple Imputation and Bootstrapping - Method MI_boot</h1>
 <h4 class="author">Martijn W Heymans</h4>
-<h4 class="date">2021-01-13</h4>
+<h4 class="date">2021-09-23</h4>
 
 
 
@@ -161,20 +168,14 @@ Schematic overview of the boot_MI method
 </ul>
 <div id="method-mi_boot-1" class="section level2">
 <h2>Method MI_boot</h2>
-<p>internal validation is done of the last model that is selected by the function <code>psfmi_lr</code>. In the example below, <code>psfmi_lr</code> is used with <code>p.crit</code> set at 1. This setting is also used in the <code>psfmi_perform</code> function. This means that first the full model is pooled and subsequently interval validation is done of the full model.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(psfmi)</span></code></pre></div>
-<pre><code>## Registered S3 methods overwritten by &#39;car&#39;:
-##   method                          from
-##   influence.merMod                lme4
-##   cooks.distance.influence.merMod lme4
-##   dfbeta.influence.merMod         lme4
-##   dfbetas.influence.merMod        lme4</code></pre>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pool_lr <span class="ot">&lt;-</span> <span class="fu">psfmi_lr</span>(<span class="at">data=</span>lbpmilr, <span class="at">formula =</span> Chronic <span class="sc">~</span> Pain <span class="sc">+</span> JobDemands <span class="sc">+</span> <span class="fu">rcs</span>(Tampascale, <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">factor</span>(Satisfaction) <span class="sc">+</span> Smoking, <span class="at">p.crit =</span> <span class="dv">1</span>, <span class="at">direction=</span><span class="st">&quot;FW&quot;</span>,</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, <span class="at">method=</span><span class="st">&quot;D1&quot;</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">psfmi_perform</span>(pool_lr, <span class="at">val_method =</span> <span class="st">&quot;MI_boot&quot;</span>, <span class="at">nboot =</span> <span class="dv">5</span>, <span class="at">p.crit=</span><span class="dv">1</span>)</span></code></pre></div>
+<p>internal validation is done of the last model that is selected by the function <code>psfmi_lr</code>. In the example below, <code>psfmi_lr</code> is used with <code>p.crit</code> set at 1. This setting is also used in the <code>psfmi_validate</code> function. This means that first the full model is pooled and subsequently interval validation is done of the full model.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(psfmi)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>pool_lr <span class="ot">&lt;-</span> <span class="fu">psfmi_lr</span>(<span class="at">data=</span>lbpmilr, <span class="at">formula =</span> Chronic <span class="sc">~</span> Pain <span class="sc">+</span> JobDemands <span class="sc">+</span> <span class="fu">rcs</span>(Tampascale, <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">factor</span>(Satisfaction) <span class="sc">+</span> Smoking, <span class="at">p.crit =</span> <span class="dv">1</span>, <span class="at">direction=</span><span class="st">&quot;FW&quot;</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, <span class="at">method=</span><span class="st">&quot;D1&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">psfmi_validate</span>(pool_lr, <span class="at">val_method =</span> <span class="st">&quot;MI_boot&quot;</span>, <span class="at">nboot =</span> <span class="dv">5</span>, <span class="at">p.crit=</span><span class="dv">1</span>)</span></code></pre></div>
 <pre><code>## 
 ## Boot 1</code></pre>
 <pre><code>## 
@@ -187,7 +188,7 @@ Schematic overview of the boot_MI method
 ## Boot 5</code></pre>
 <pre><code>## 
 ## p.crit = 1, validation is done without variable selection</code></pre>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div>
 <pre><code>## $stats_val
 ##                   Orig  Apparent      Test  Optimism Corrected
 ## AUC          0.8871000 0.9131800 0.8786800 0.0345000 0.8526000
@@ -211,19 +212,32 @@ Schematic overview of the boot_MI method
 ## Boot 2 -0.008403925 0.7697086
 ## Boot 3 -0.121148496 0.5440115
 ## Boot 4 -0.074413523 0.6987898
-## Boot 5 -0.484662668 0.7381040</code></pre>
+## Boot 5 -0.484662668 0.7381040
+## 
+## $predictors_selected
+##        Pain JobDemands Smoking factor(Satisfaction) rcs(Tampascale,3)
+## Boot 1    1          1       1                    1                 1
+## Boot 2    1          1       1                    1                 1
+## Boot 3    1          1       1                    1                 1
+## Boot 4    1          1       1                    1                 1
+## Boot 5    1          1       1                    1                 1
+## 
+## $model_orig
+## Chronic ~ Pain + JobDemands + Smoking + factor(Satisfaction) + 
+##     rcs(Tampascale, 3)
+## &lt;environment: 0x000000002cce1810&gt;</code></pre>
 <p>Back to <a href="#examples">Examples</a></p>
 </div>
 <div id="method-mi_boot-including-bw-selection" class="section level2">
 <h2>Method MI_boot including BW selection</h2>
-<p>Internal validation is done of the last model that is selected by the function <code>psfmi_lr</code>. In the example below, <code>psfmi_lr</code> is used with <code>p.crit</code> set at 1, and pooling is than done without variable selection, i.e. the full model is pooled. When subsequently interval validation is done with the <code>psfmi_perform</code> function including BW, BW is applied in each bootstrap sample from the full model.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(psfmi)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>pool_lr <span class="ot">&lt;-</span> <span class="fu">psfmi_lr</span>(<span class="at">data=</span>lbpmilr, <span class="at">formula =</span> Chronic <span class="sc">~</span> Pain <span class="sc">+</span> JobDemands <span class="sc">+</span> <span class="fu">rcs</span>(Tampascale, <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">factor</span>(Satisfaction) <span class="sc">+</span> Smoking, <span class="at">p.crit =</span> <span class="dv">1</span>, <span class="at">direction=</span><span class="st">&quot;FW&quot;</span>,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, <span class="at">method=</span><span class="st">&quot;D1&quot;</span>)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">psfmi_perform</span>(pool_lr, <span class="at">val_method =</span> <span class="st">&quot;MI_boot&quot;</span>, <span class="at">nboot =</span> <span class="dv">5</span>, <span class="at">p.crit=</span><span class="fl">0.05</span>, <span class="at">direction =</span> <span class="st">&quot;BW&quot;</span>)</span></code></pre></div>
+<p>Internal validation is done of the last model that is selected by the function <code>psfmi_lr</code>. In the example below, <code>psfmi_lr</code> is used with <code>p.crit</code> set at 1, and pooling is than done without variable selection, i.e. the full model is pooled. When subsequently interval validation is done with the <code>psfmi_validate</code> function including BW, BW is applied in each bootstrap sample from the full model.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(psfmi)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>pool_lr <span class="ot">&lt;-</span> <span class="fu">psfmi_lr</span>(<span class="at">data=</span>lbpmilr, <span class="at">formula =</span> Chronic <span class="sc">~</span> Pain <span class="sc">+</span> JobDemands <span class="sc">+</span> <span class="fu">rcs</span>(Tampascale, <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">factor</span>(Satisfaction) <span class="sc">+</span> Smoking, <span class="at">p.crit =</span> <span class="dv">1</span>, <span class="at">direction=</span><span class="st">&quot;FW&quot;</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, <span class="at">method=</span><span class="st">&quot;D1&quot;</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">psfmi_validate</span>(pool_lr, <span class="at">val_method =</span> <span class="st">&quot;MI_boot&quot;</span>, <span class="at">nboot =</span> <span class="dv">5</span>, <span class="at">p.crit=</span><span class="fl">0.05</span>, <span class="at">direction =</span> <span class="st">&quot;BW&quot;</span>)</span></code></pre></div>
 <pre><code>## 
 ## Boot 1</code></pre>
 <pre><code>## Removed at Step 1 is - Smoking</code></pre>
@@ -263,12 +277,18 @@ Schematic overview of the boot_MI method
 <pre><code>## 
 ## Selection correctly terminated, 
 ## No more variables removed from the model</code></pre>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div>
+<pre><code>## Removed at Step 1 is - Smoking</code></pre>
+<pre><code>## Removed at Step 2 is - JobDemands</code></pre>
+<pre><code>## Removed at Step 3 is - rcs(Tampascale,3)</code></pre>
+<pre><code>## 
+## Selection correctly terminated, 
+## No more variables removed from the model</code></pre>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div>
 <pre><code>## $stats_val
 ##                   Orig  Apparent      Test   Optimism Corrected
-## AUC          0.8871000 0.9001200 0.8740600 0.02606000 0.8610400
-## R2           0.5605521 0.6012708 0.5231900 0.07808081 0.4824713
-## Brier Scaled 0.4514569 0.5105213 0.4331223 0.07739902 0.3740579
+## AUC          0.8730000 0.9001200 0.8740600 0.02606000 0.8469400
+## R2           0.5244014 0.6012708 0.5231900 0.07808081 0.4463206
+## Brier Scaled 0.4384749 0.5105213 0.4331223 0.07739902 0.3610759
 ## Slope        1.0000000 1.0000000 0.8603053 0.13969467 0.8603053
 ## 
 ## $intercept_test
@@ -287,7 +307,19 @@ Schematic overview of the boot_MI method
 ## Boot 2 -0.066031545 0.8350387
 ## Boot 3  0.057587096 0.7083871
 ## Boot 4 -0.009979645 0.7793790
-## Boot 5 -0.115101220 0.9549715</code></pre>
+## Boot 5 -0.115101220 0.9549715
+## 
+## $predictors_selected
+##        Pain JobDemands Smoking factor(Satisfaction) rcs(Tampascale,3)
+## Boot 1    1          0       0                    1                 1
+## Boot 2    1          0       0                    1                 0
+## Boot 3    1          0       0                    1                 0
+## Boot 4    1          0       0                    1                 0
+## Boot 5    1          0       0                    1                 0
+## 
+## $model_orig
+## Chronic ~ Pain + factor(Satisfaction)
+## &lt;environment: 0x000000002aebf020&gt;</code></pre>
 <p>Back to <a href="#examples">Examples</a></p>
 </div>
 </div>

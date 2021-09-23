@@ -10,7 +10,7 @@ pool_lr <- psfmi_lr(data=lbpmilr, formula = Chronic ~ Pain + JobDemands + rcs(Ta
                  nimp=5, impvar="Impnr", method="D1")
 
 set.seed(100)
-res_MI_boot <- psfmi_perform(pool_lr, val_method = "boot_MI", data_orig = lbp_orig, nboot = 5,
+res_MI_boot <- psfmi_validate(pool_lr, val_method = "boot_MI", data_orig = lbp_orig, nboot = 5,
                      p.crit=1, nimp_mice = 3, direction = "BW", miceImp = miceImp,
                      printFlag = FALSE)
 
@@ -25,7 +25,7 @@ pool_lr <- psfmi_lr(data=lbpmilr, Outcome="Chronic", predictors = c("Pain", "Job
                    p.crit = 1, direction="FW", nimp=5, impvar="Impnr", method="D1")
 
 set.seed(100)
-res_MI_boot <- psfmi_perform(pool_lr, val_method = "boot_MI", data_orig = lbp_orig, nboot = 5,
+res_MI_boot <- psfmi_validate(pool_lr, val_method = "boot_MI", data_orig = lbp_orig, nboot = 5,
                      p.crit=0.05, nimp_mice = 3, direction = "BW", miceImp = miceImp,
                      printFlag = FALSE)
 

@@ -10,7 +10,7 @@ pool_lr <- psfmi_lr(data=lbpmilr, formula = Chronic ~ rcs(Pain, 3) + JobDemands 
              method="D1")
 
 set.seed(200)
-res_cv <- psfmi_perform(pool_lr, val_method = "cv_MI", data_orig = lbp_orig, folds = 5,
+res_cv <- psfmi_validate(pool_lr, val_method = "cv_MI", data_orig = lbp_orig, folds = 5,
                      p.crit=1, BW=FALSE,  nimp_cv = 3, miceImp = miceImp, printFlag = FALSE)
 
 res_cv
@@ -25,7 +25,7 @@ pool_lr <- psfmi_lr(data=lbpmilr, formula = Chronic ~ rcs(Pain, 3) + JobDemands 
              method="D1")
 
 set.seed(200)
-res_cv <- psfmi_perform(pool_lr, val_method = "cv_MI", data_orig = lbp_orig, folds = 5,
+res_cv <- psfmi_validate(pool_lr, val_method = "cv_MI", data_orig = lbp_orig, folds = 5,
                      p.crit=0.05, BW=TRUE,  nimp_cv = 3, miceImp = miceImp, printFlag = FALSE)
 
 res_cv

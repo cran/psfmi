@@ -3,7 +3,7 @@
 \name{bw_single}
 \alias{bw_single}
 \title{Predictor selection function for backward selection of
-Logistic regression models.}
+Linear and Logistic regression models.}
 \usage{
 bw_single(
   data,
@@ -15,7 +15,8 @@ bw_single(
   spline.predictors = NULL,
   int.predictors = NULL,
   keep.predictors = NULL,
-  nknots = NULL
+  nknots = NULL,
+  model_type = "binomial"
 )
 }
 \arguments{
@@ -46,6 +47,9 @@ an interaction pair, separated by a “:” symbol.}
 in the model during predictor selection. All type of variables are allowed.}
 
 \item{nknots}{A numerical vector that defines the number of knots for each spline predictor separately.}
+
+\item{model_type}{A character vector. If "binomial" a logistic regression model is used (default) and for 
+"linear" a linear regression model is used.}
 }
 \value{
 An object of class \code{smods} (single models) from
@@ -60,8 +64,8 @@ An object of class \code{smods} (single models) from
  \code{predictors_initial} for names of predictors in start model.
 }
 \description{
-\code{bw_single} Backward selection of Logistic regression
-prediction models using as selection method the likelihood-ratio Chi-square value.
+\code{bw_single} Backward selection of Linear and Logistic regression
+ models using as selection method the likelihood-ratio Chi-square value.
 }
 \details{
 A typical formula object has the form \code{Outcome ~ terms}. Categorical variables has to
@@ -70,19 +74,8 @@ A typical formula object has the form \code{Outcome ~ terms}. Categorical variab
  \code{Outcome ~ variable1*variable2} or \code{Outcome ~ variable1 + variable2 + variable1:variable2}.
  All variables in the terms part have to be separated by a "+".
 }
-\examples{
-res_single <- bw_single(data=lbpmilr, p.crit = 0.05, Outcome="Chronic",
-         predictors=c("Tampascale", "Smoking"),
-         cat.predictors = c("Satisfaction"))
-         
-res_single$RR_model_final
-
-}
 \references{
 http://missingdatasolutions.rbind.io/
-}
-\seealso{
-\code{\link{psfmi_perform}}
 }
 \author{
 Martijn Heymans, 2020
