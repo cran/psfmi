@@ -3,11 +3,10 @@
 
 # psfmi
 
-[![CRAN\_Release\_Badge](https://www.r-pkg.org/badges/version-ago/psfmi)](https://CRAN.R-project.org/package=psfmi)
+[![CRAN_Release_Badge](https://www.r-pkg.org/badges/version-ago/psfmi)](https://CRAN.R-project.org/package=psfmi)
 [![Monthly downloads
 badge](https://cranlogs.r-pkg.org/badges/last-month/psfmi?color=blue)](https://CRAN.R-project.org/package=psfmi)
-[![Travis Build
-Status](https://travis-ci.com/mwheymans/psfmi.svg?branch=master)](https://travis-ci.org/mwheymans/psfmi)
+[![R-CMD-check](https://github.com/mwheymans/psfmi/workflows/R-CMD-check/badge.svg)](https://github.com/mwheymans/psfmi/actions)
 [![minimal R
 version](https://img.shields.io/badge/R%3E%3D-4.0.0-6666ff.svg)](https://cran.r-project.org/)
 
@@ -48,8 +47,9 @@ devtools::install_github("mwheymans/psfmi")
 Cite the package as:
 
 ``` r
-Martijn W Heymans (2021). psfmi: Prediction Model Selection and Performance Evaluation in
-Multiple Imputed Datasets. R package version 1.0.0. https://mwheymans.github.io/psfmi/
+
+Martijn W Heymans (2021). psfmi: Prediction Model Pooling, Selection and Performance Evaluation 
+Across Multiply Imputed Datasets. R package version 1.1.0. https://mwheymans.github.io/psfmi/ 
 ```
 
 ## Examples
@@ -88,6 +88,7 @@ pool_lr$RR_model
 #> 7 0.036152843 3.266722e+00 1.081155e+00 9.87043962
 #> 8 0.012063538 1.792655e+00 1.140659e+00 2.81733025
 #> 9 0.049589266 5.476448e-01 3.002599e-01 0.99885104
+
 pool_lr$multiparm
 #> $`Step 1 - no variables removed -`
 #>                      p-values D1 F-statistic
@@ -113,6 +114,7 @@ pool_lr <- psfmi_lr(data=lbpmilr, formula = Chronic ~ rcs(Pain, 3) +
 #> 
 #> Selection correctly terminated, 
 #> No new variables entered the model
+
 pool_lr$RR_model_final
 #> $`Final model`
 #>                    term   estimate std.error  statistic        df     p.value
@@ -127,6 +129,7 @@ pool_lr$RR_model_final
 #> 3 0.09701406 0.022793375 0.4129150
 #> 4 1.91841309 0.854476033 4.3070942
 #> 5 1.60060402 0.640677978 3.9987846
+
 pool_lr$multiparm
 #> $`Step 0 - selected - rcs(Pain,3)`
 #>                        p-value D1

@@ -12,11 +12,23 @@
 
 <meta name="author" content="Martijn W Heymans" />
 
-<meta name="date" content="2021-09-23" />
+<meta name="date" content="2022-11-06" />
 
 <title>Pool Model Performance</title>
 
-<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -26,6 +38,7 @@
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
     </style>
+
 
 
 <style type="text/css">
@@ -109,13 +122,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -127,7 +147,187 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
 
 
 
@@ -141,81 +341,88 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <h1 class="title toc-ignore">Pool Model Performance</h1>
 <h4 class="author">Martijn W Heymans</h4>
-<h4 class="date">2021-09-23</h4>
+<h4 class="date">2022-11-06</h4>
 
 
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>The <code>psfmi</code> package includes the function <code>pool_performance</code>, to pool the performance measures of logistic and Cox regression models. This vignette show you how to use this function.</p>
+<p>The <code>psfmi</code> package includes the function
+<code>pool_performance</code>, to pool the performance measures of
+logistic and Cox regression models. This vignette show you how to use
+this function.</p>
 </div>
 <div id="examples" class="section level1">
 <h1>Examples</h1>
 </div>
 <div id="performance-logistic-regression-model" class="section level1">
 <h1>Performance Logistic regression model</h1>
-<p>The performance of a logistic regression model across multiply imputed datasets can be obtained as follows.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>perf <span class="ot">&lt;-</span> <span class="fu">pool_performance</span>(<span class="at">data=</span>lbpmilr, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> Chronic <span class="sc">~</span> Gender <span class="sc">+</span> Pain <span class="sc">+</span> Tampascale <span class="sc">+</span> </span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  Smoking <span class="sc">+</span> Function <span class="sc">+</span> Radiation <span class="sc">+</span> Age <span class="sc">+</span> </span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  Duration <span class="sc">+</span> BMI, </span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal.plot=</span><span class="cn">TRUE</span>, <span class="at">plot.method=</span><span class="st">&quot;mean&quot;</span>, </span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">groups_cal=</span><span class="dv">10</span>, <span class="at">model_type=</span><span class="st">&quot;binomial&quot;</span>)</span></code></pre></div>
+<p>The performance of a logistic regression model across multiply
+imputed datasets can be obtained as follows.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>perf <span class="ot">&lt;-</span> <span class="fu">pool_performance</span>(<span class="at">data=</span>lbpmilr, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> Chronic <span class="sc">~</span> Gender <span class="sc">+</span> Pain <span class="sc">+</span> Tampascale <span class="sc">+</span> </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  Smoking <span class="sc">+</span> Function <span class="sc">+</span> Radiation <span class="sc">+</span> Age <span class="sc">+</span> </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  Duration <span class="sc">+</span> BMI, </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal.plot=</span><span class="cn">TRUE</span>, <span class="at">plot.method=</span><span class="st">&quot;mean&quot;</span>, </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">groups_cal=</span><span class="dv">10</span>, <span class="at">model_type=</span><span class="st">&quot;binomial&quot;</span>)</span></code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>perf</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $ROC_pooled</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                     95% Low C-statistic 95% Up</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; C-statistic (logit)  0.7878      0.8626 0.9139</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $coef_pooled</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  (Intercept)       Gender         Pain   Tampascale      Smoking     Function </span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -5.951990403 -0.300998171  0.533421791  0.104519460  0.168974909 -0.063384729 </span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Radiation          Age     Duration          BMI </span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  0.256421438 -0.014809697 -0.001136425  0.006379084 </span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $R2_pooled</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.4882147</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $Brier_Scaled_pooled</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.3946362</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $nimp</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 5</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $HLtest_pooled</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         D2          p        df1        df2 </span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1.0901268  0.3779371  8.0000000 85.9689530 </span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $model_type</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;binomial&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>perf</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $ROC_pooled</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                     95% Low C-statistic 95% Up</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; C-statistic (logit)  0.7878      0.8626 0.9139</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $coef_pooled</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  (Intercept)       Gender         Pain   Tampascale      Smoking     Function </span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -5.951990403 -0.300998171  0.533421791  0.104519460  0.168974909 -0.063384729 </span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Radiation          Age     Duration          BMI </span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  0.256421438 -0.014809697 -0.001136425  0.006379084 </span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $R2_pooled</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.4882147</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $Brier_Scaled_pooled</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.3946362</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $nimp</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 5</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $HLtest_pooled</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       F_value     P(&gt;F) df1      df2</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 1.090127 0.3779371   8 85.96895</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $model_type</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;binomial&quot;</span></span></code></pre></div>
 </div>
 <div id="performance-cox-regression-model" class="section level1">
 <h1>Performance Cox regression model</h1>
 <p>For a Cox regression model the following code can be used.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>perf <span class="ot">&lt;-</span> <span class="fu">pool_performance</span>(<span class="at">data=</span>lbpmicox, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">Surv</span>(Time, Status) <span class="sc">~</span> Duration <span class="sc">+</span> Pain <span class="sc">+</span> Tampascale <span class="sc">+</span> </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">factor</span>(Expect_cat) <span class="sc">+</span> Function <span class="sc">+</span> Radiation <span class="sc">+</span> Age , </span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal.plot=</span><span class="cn">FALSE</span>, <span class="at">model_type=</span><span class="st">&quot;survival&quot;</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>perf</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $concordance_pooled</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                     95% Low C-statistic 95% Up</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; C-statistic (logit)  0.5733       0.621 0.6664</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $coef_pooled</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            Duration                Pain          Tampascale factor(Expect_cat)2 </span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        -0.007680610        -0.085077440        -0.018125989         0.306105694 </span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; factor(Expect_cat)3            Function           Radiation                 Age </span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         0.269403151         0.038106572        -0.037816020        -0.008903958 </span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $R2_pooled</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.09049936</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $nimp</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 5</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $model_type</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;survival&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>perf <span class="ot">&lt;-</span> <span class="fu">pool_performance</span>(<span class="at">data=</span>lbpmicox, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">Surv</span>(Time, Status) <span class="sc">~</span> Duration <span class="sc">+</span> Pain <span class="sc">+</span> Tampascale <span class="sc">+</span> </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">factor</span>(Expect_cat) <span class="sc">+</span> Function <span class="sc">+</span> Radiation <span class="sc">+</span> Age , </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal.plot=</span><span class="cn">FALSE</span>, <span class="at">model_type=</span><span class="st">&quot;survival&quot;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>perf</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $concordance_pooled</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                     95% Low C-statistic 95% Up</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; C-statistic (logit)  0.5733       0.621 0.6664</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $coef_pooled</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            Duration                Pain          Tampascale factor(Expect_cat)2 </span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        -0.007680610        -0.085077440        -0.018125989         0.306105694 </span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; factor(Expect_cat)3            Function           Radiation                 Age </span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         0.269403151         0.038106572        -0.037816020        -0.008903958 </span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $R2_pooled</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.09049936</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $nimp</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 5</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $model_type</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;survival&quot;</span></span></code></pre></div>
 </div>
 
 
