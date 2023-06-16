@@ -27,7 +27,7 @@ knitr::opts_chunk$set(
                 method="D1", direction = "FW")
   
   pool_coxr$RR_model_final
-  pool_coxr$RR_model_final
+  pool_coxr$multiparm_final
   pool_coxr$predictors_in
   
 
@@ -43,7 +43,7 @@ knitr::opts_chunk$set(
                 p.crit=0.05, method="D1", direction = "FW")
   
   pool_coxr$RR_model_final
-  pool_coxr$RR_model_final
+  pool_coxr$multiparm_final
   pool_coxr$predictors_in
 
 
@@ -59,7 +59,7 @@ knitr::opts_chunk$set(
                 p.crit=0.05, method="D1", direction = "BW")
   
   pool_coxr$RR_model_final
-  pool_coxr$RR_model_final
+  pool_coxr$multiparm_final
   pool_coxr$predictors_in
 
 
@@ -74,7 +74,21 @@ knitr::opts_chunk$set(
                 p.crit=0.05, method="MPR", direction = "FW")
   
   pool_coxr$RR_model_final
-  pool_coxr$RR_model_final
+  pool_coxr$multiparm_final
   pool_coxr$predictors_in
+  
+
+## -----------------------------------------------------------------------------
+
+  library(psfmi)
+  pool_coxr <- psfmi_coxr(data=lbpmicox, nimp=5, impvar="Impnr", 
+                formula = Surv(Time, Status) ~ Duration + Onset + 
+                Function + Previous + rcs(Tampascale, 3) + 
+                factor(Satisfaction) + strata(Radiation), 
+                p.crit=0.05, method="MPR", direction = "BW")
+  
+  pool_coxr$RR_model_final
+  pool_coxr$multiparm_final
+  pool_coxr$formula_step
   
 

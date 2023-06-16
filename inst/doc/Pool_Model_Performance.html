@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martijn W Heymans" />
 
-<meta name="date" content="2022-11-06" />
+<meta name="date" content="2023-06-15" />
 
 <title>Pool Model Performance</title>
 
@@ -31,23 +31,23 @@ document.addEventListener('DOMContentLoaded', function(e) {
 </script>
 
 <style type="text/css">
-  code{white-space: pre-wrap;}
-  span.smallcaps{font-variant: small-caps;}
-  span.underline{text-decoration: underline;}
-  div.column{display: inline-block; vertical-align: top; width: 50%;}
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  ul.task-list{list-style: none;}
-    </style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
 
 
 
 <style type="text/css">
-  code {
-    white-space: pre;
-  }
-  .sourceCode {
-    overflow: visible;
-  }
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
@@ -65,55 +65,54 @@ pre > code.sourceCode { white-space: pre-wrap; }
 pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
-  { counter-reset: source-line 0; }
+{ counter-reset: source-line 0; }
 pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
+{ position: relative; left: -4em; counter-increment: source-line; }
 pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
 div.sourceCode
-  {   }
+{ }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
 </style>
 <script>
 // apply pandoc div.sourceCode style to pre.sourceCode instead
@@ -341,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Pool Model Performance</h1>
 <h4 class="author">Martijn W Heymans</h4>
-<h4 class="date">2022-11-06</h4>
+<h4 class="date">2023-06-15</h4>
 
 
 
@@ -359,70 +358,70 @@ this function.</p>
 <h1>Performance Logistic regression model</h1>
 <p>The performance of a logistic regression model across multiply
 imputed datasets can be obtained as follows.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>perf <span class="ot">&lt;-</span> <span class="fu">pool_performance</span>(<span class="at">data=</span>lbpmilr, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, </span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> Chronic <span class="sc">~</span> Gender <span class="sc">+</span> Pain <span class="sc">+</span> Tampascale <span class="sc">+</span> </span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  Smoking <span class="sc">+</span> Function <span class="sc">+</span> Radiation <span class="sc">+</span> Age <span class="sc">+</span> </span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  Duration <span class="sc">+</span> BMI, </span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal.plot=</span><span class="cn">TRUE</span>, <span class="at">plot.method=</span><span class="st">&quot;mean&quot;</span>, </span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">groups_cal=</span><span class="dv">10</span>, <span class="at">model_type=</span><span class="st">&quot;binomial&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>perf <span class="ot">&lt;-</span> <span class="fu">pool_performance</span>(<span class="at">data=</span>lbpmilr, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, </span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  <span class="at">formula =</span> Chronic <span class="sc">~</span> Gender <span class="sc">+</span> Pain <span class="sc">+</span> Tampascale <span class="sc">+</span> </span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  Smoking <span class="sc">+</span> Function <span class="sc">+</span> Radiation <span class="sc">+</span> Age <span class="sc">+</span> </span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  Duration <span class="sc">+</span> BMI, </span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">cal.plot=</span><span class="cn">TRUE</span>, <span class="at">plot.method=</span><span class="st">&quot;mean&quot;</span>, </span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">groups_cal=</span><span class="dv">10</span>, <span class="at">model_type=</span><span class="st">&quot;binomial&quot;</span>)</span></code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>perf</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $ROC_pooled</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                     95% Low C-statistic 95% Up</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; C-statistic (logit)  0.7878      0.8626 0.9139</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $coef_pooled</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  (Intercept)       Gender         Pain   Tampascale      Smoking     Function </span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -5.951990403 -0.300998171  0.533421791  0.104519460  0.168974909 -0.063384729 </span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Radiation          Age     Duration          BMI </span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  0.256421438 -0.014809697 -0.001136425  0.006379084 </span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $R2_pooled</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.4882147</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $Brier_Scaled_pooled</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.3946362</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $nimp</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 5</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $HLtest_pooled</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       F_value     P(&gt;F) df1      df2</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 1.090127 0.3779371   8 85.96895</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $model_type</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;binomial&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>  </span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>perf</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; $ROC_pooled</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;                     95% Low C-statistic 95% Up</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; C-statistic (logit)  0.7878      0.8626 0.9139</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; $coef_pooled</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt;  (Intercept)       Gender         Pain   Tampascale      Smoking     Function </span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; -5.951990403 -0.300998171  0.533421791  0.104519460  0.168974909 -0.063384729 </span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt;    Radiation          Age     Duration          BMI </span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt;  0.256421438 -0.014809697 -0.001136425  0.006379084 </span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; $R2_pooled</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; [1] 0.4882147</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; $Brier_Scaled_pooled</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; [1] 0.3946362</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; $nimp</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; [1] 5</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; $HLtest_pooled</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt;       F_value     P(&gt;F) df1      df2</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; [1,] 1.090127 0.3779371   8 85.96895</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; $model_type</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; [1] &quot;binomial&quot;</span></span></code></pre></div>
 </div>
 <div id="performance-cox-regression-model" class="section level1">
 <h1>Performance Cox regression model</h1>
 <p>For a Cox regression model the following code can be used.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>perf <span class="ot">&lt;-</span> <span class="fu">pool_performance</span>(<span class="at">data=</span>lbpmicox, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">Surv</span>(Time, Status) <span class="sc">~</span> Duration <span class="sc">+</span> Pain <span class="sc">+</span> Tampascale <span class="sc">+</span> </span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">factor</span>(Expect_cat) <span class="sc">+</span> Function <span class="sc">+</span> Radiation <span class="sc">+</span> Age , </span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal.plot=</span><span class="cn">FALSE</span>, <span class="at">model_type=</span><span class="st">&quot;survival&quot;</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>perf</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $concordance_pooled</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                     95% Low C-statistic 95% Up</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; C-statistic (logit)  0.5733       0.621 0.6664</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $coef_pooled</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            Duration                Pain          Tampascale factor(Expect_cat)2 </span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        -0.007680610        -0.085077440        -0.018125989         0.306105694 </span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; factor(Expect_cat)3            Function           Radiation                 Age </span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         0.269403151         0.038106572        -0.037816020        -0.008903958 </span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $R2_pooled</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.09049936</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $nimp</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 5</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $model_type</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;survival&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>perf <span class="ot">&lt;-</span> <span class="fu">pool_performance</span>(<span class="at">data=</span>lbpmicox, <span class="at">nimp=</span><span class="dv">5</span>, <span class="at">impvar=</span><span class="st">&quot;Impnr&quot;</span>, </span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">Surv</span>(Time, Status) <span class="sc">~</span> Duration <span class="sc">+</span> Pain <span class="sc">+</span> Tampascale <span class="sc">+</span> </span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="fu">factor</span>(Expect_cat) <span class="sc">+</span> Function <span class="sc">+</span> Radiation <span class="sc">+</span> Age , </span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">cal.plot=</span><span class="cn">FALSE</span>, <span class="at">model_type=</span><span class="st">&quot;survival&quot;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  </span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>perf</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; $concordance_pooled</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt;                     95% Low C-statistic 95% Up</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; C-statistic (logit)  0.5733       0.621 0.6664</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; $coef_pooled</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt;            Duration                Pain          Tampascale factor(Expect_cat)2 </span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt;        -0.007680610        -0.085077440        -0.018125989         0.306105694 </span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; factor(Expect_cat)3            Function           Radiation                 Age </span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt;         0.269403151         0.038106572        -0.037816020        -0.008903958 </span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; $R2_pooled</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; [1] 0.09049936</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; $nimp</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; [1] 5</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; $model_type</span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; [1] &quot;survival&quot;</span></span></code></pre></div>
 </div>
 
 
