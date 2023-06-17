@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martijn W Heymans" />
 
-<meta name="date" content="2023-06-15" />
+<meta name="date" content="2023-06-16" />
 
 <title>Pooling and Selection of Cox Regression Models</title>
 
@@ -341,7 +341,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h1 class="title toc-ignore">Pooling and Selection of Cox Regression
 Models</h1>
 <h4 class="author">Martijn W Heymans</h4>
-<h4 class="date">2023-06-15</h4>
+<h4 class="date">2023-06-16</h4>
 
 
 
@@ -683,22 +683,22 @@ model.</p>
 <span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt; $`Step 1 - removal - factor(Satisfaction)`</span></span>
 <span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt; Surv(Time, Status) ~ Duration + Onset + Function + Previous + </span></span>
 <span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt;     factor(Satisfaction) + rcs(Tampascale, 3) + strata(Radiation)</span></span>
-<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x000002406ed0df78&gt;</span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x00000182fa18a788&gt;</span></span>
 <span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; $`Step 2 - removal - Onset`</span></span>
 <span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; Surv(Time, Status) ~ Duration + Onset + Function + Previous + </span></span>
 <span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt;     rcs(Tampascale, 3) + strata(Radiation)</span></span>
-<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x000002406ed0df78&gt;</span></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x00000182fa18a788&gt;</span></span>
 <span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co">#&gt; $`Step 3 - removal - Previous`</span></span>
 <span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co">#&gt; Surv(Time, Status) ~ Duration + Function + Previous + rcs(Tampascale, </span></span>
 <span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co">#&gt;     3) + strata(Radiation)</span></span>
-<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x000002406ed0df78&gt;</span></span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x00000182fa18a788&gt;</span></span>
 <span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="co">#&gt; $`Step 4 - removal - ended`</span></span>
 <span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a><span class="co">#&gt; Surv(Time, Status) ~ Duration + Function + rcs(Tampascale, 3) + </span></span>
 <span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a><span class="co">#&gt;     strata(Radiation)</span></span>
-<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x000002406ed0df78&gt;</span></span></code></pre></div>
+<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x00000182fa18a788&gt;</span></span></code></pre></div>
 <p>Back to <a href="#examples">Examples</a></p>
 </div>
 </div>

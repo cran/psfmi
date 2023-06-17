@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martijn W Heymans" />
 
-<meta name="date" content="2023-06-15" />
+<meta name="date" content="2023-06-16" />
 
 <title>Working together: mice and psfmi</title>
 
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Working together: mice and psfmi</h1>
 <h4 class="author">Martijn W Heymans</h4>
-<h4 class="date">2023-06-15</h4>
+<h4 class="date">2023-06-16</h4>
 
 
 
@@ -421,22 +421,22 @@ psfmi for selecting logistic regression models</a></li>
 <span id="cb4-47"><a href="#cb4-47" tabindex="-1"></a>                      JobControl <span class="sc">+</span> JobDemands <span class="sc">+</span> SocialSupport, <span class="at">method=</span><span class="st">&quot;D1&quot;</span>)</span>
 <span id="cb4-48"><a href="#cb4-48" tabindex="-1"></a>  pool_lr<span class="sc">$</span>RR_model</span>
 <span id="cb4-49"><a href="#cb4-49" tabindex="-1"></a><span class="co">#&gt; $`Step 1 - no variables removed -`</span></span>
-<span id="cb4-50"><a href="#cb4-50" tabindex="-1"></a><span class="co">#&gt;            term      estimate  std.error    statistic        df     p.value</span></span>
-<span id="cb4-51"><a href="#cb4-51" tabindex="-1"></a><span class="co">#&gt; 1   (Intercept)  0.0732087959 2.58035463  0.028371603  74.11387 0.977442032</span></span>
-<span id="cb4-52"><a href="#cb4-52" tabindex="-1"></a><span class="co">#&gt; 2        Gender -0.3656032002 0.41379009 -0.883547491 147.37296 0.378379603</span></span>
-<span id="cb4-53"><a href="#cb4-53" tabindex="-1"></a><span class="co">#&gt; 3       Smoking  0.1045111860 0.34049266  0.306941079 149.28917 0.759315938</span></span>
-<span id="cb4-54"><a href="#cb4-54" tabindex="-1"></a><span class="co">#&gt; 4      Function -0.1422280109 0.04332718 -3.282650961 137.79160 0.001303293</span></span>
-<span id="cb4-55"><a href="#cb4-55" tabindex="-1"></a><span class="co">#&gt; 5    JobControl  0.0075585801 0.02041351  0.370273390 103.67036 0.711934213</span></span>
-<span id="cb4-56"><a href="#cb4-56" tabindex="-1"></a><span class="co">#&gt; 6    JobDemands -0.0002447744 0.04021589 -0.006086509  61.81800 0.995163298</span></span>
-<span id="cb4-57"><a href="#cb4-57" tabindex="-1"></a><span class="co">#&gt; 7 SocialSupport  0.0419682118 0.05602909  0.749043244 147.23418 0.455026160</span></span>
+<span id="cb4-50"><a href="#cb4-50" tabindex="-1"></a><span class="co">#&gt;            term     estimate  std.error   statistic       df     p.value</span></span>
+<span id="cb4-51"><a href="#cb4-51" tabindex="-1"></a><span class="co">#&gt; 1   (Intercept)  0.088437723 2.39728532  0.03689078 140.2898 0.970624534</span></span>
+<span id="cb4-52"><a href="#cb4-52" tabindex="-1"></a><span class="co">#&gt; 2        Gender -0.355692675 0.41302929 -0.86118027 148.7212 0.390525074</span></span>
+<span id="cb4-53"><a href="#cb4-53" tabindex="-1"></a><span class="co">#&gt; 3       Smoking  0.070911360 0.34038968  0.20832406 146.1281 0.835266034</span></span>
+<span id="cb4-54"><a href="#cb4-54" tabindex="-1"></a><span class="co">#&gt; 4      Function -0.135190580 0.04304434 -3.14072824 136.8765 0.002065484</span></span>
+<span id="cb4-55"><a href="#cb4-55" tabindex="-1"></a><span class="co">#&gt; 5    JobControl  0.008217615 0.01956697  0.41997377 147.7936 0.675114526</span></span>
+<span id="cb4-56"><a href="#cb4-56" tabindex="-1"></a><span class="co">#&gt; 6    JobDemands -0.001920148 0.03765469 -0.05099361 124.4584 0.959412367</span></span>
+<span id="cb4-57"><a href="#cb4-57" tabindex="-1"></a><span class="co">#&gt; 7 SocialSupport  0.039309546 0.05662603  0.69419571 131.5462 0.488783633</span></span>
 <span id="cb4-58"><a href="#cb4-58" tabindex="-1"></a><span class="co">#&gt;          OR   lower.EXP   upper.EXP</span></span>
-<span id="cb4-59"><a href="#cb4-59" tabindex="-1"></a><span class="co">#&gt; 1 1.0759552 0.006294187 183.9283666</span></span>
-<span id="cb4-60"><a href="#cb4-60" tabindex="-1"></a><span class="co">#&gt; 2 0.6937780 0.306256653   1.5716490</span></span>
-<span id="cb4-61"><a href="#cb4-61" tabindex="-1"></a><span class="co">#&gt; 3 1.1101678 0.566489838   2.1756305</span></span>
-<span id="cb4-62"><a href="#cb4-62" tabindex="-1"></a><span class="co">#&gt; 4 0.8674235 0.796203761   0.9450137</span></span>
-<span id="cb4-63"><a href="#cb4-63" tabindex="-1"></a><span class="co">#&gt; 5 1.0075872 0.967612391   1.0492135</span></span>
-<span id="cb4-64"><a href="#cb4-64" tabindex="-1"></a><span class="co">#&gt; 6 0.9997553 0.922525831   1.0834500</span></span>
-<span id="cb4-65"><a href="#cb4-65" tabindex="-1"></a><span class="co">#&gt; 7 1.0428613 0.933553616   1.1649676</span></span></code></pre></div>
+<span id="cb4-59"><a href="#cb4-59" tabindex="-1"></a><span class="co">#&gt; 1 1.0924662 0.009551675 124.9500735</span></span>
+<span id="cb4-60"><a href="#cb4-60" tabindex="-1"></a><span class="co">#&gt; 2 0.7006879 0.309791275   1.5848205</span></span>
+<span id="cb4-61"><a href="#cb4-61" tabindex="-1"></a><span class="co">#&gt; 3 1.0734861 0.547818425   2.1035662</span></span>
+<span id="cb4-62"><a href="#cb4-62" tabindex="-1"></a><span class="co">#&gt; 4 0.8735494 0.802271267   0.9511603</span></span>
+<span id="cb4-63"><a href="#cb4-63" tabindex="-1"></a><span class="co">#&gt; 5 1.0082515 0.970009356   1.0480013</span></span>
+<span id="cb4-64"><a href="#cb4-64" tabindex="-1"></a><span class="co">#&gt; 6 0.9980817 0.926402358   1.0753071</span></span>
+<span id="cb4-65"><a href="#cb4-65" tabindex="-1"></a><span class="co">#&gt; 7 1.0400924 0.929874256   1.1633747</span></span></code></pre></div>
 <p>Back to <a href="#examples">Examples</a></p>
 </div>
 <div id="mice-and-psfmi-for-selecting-logistic-regression-models" class="section level2">
@@ -488,12 +488,12 @@ psfmi for selecting logistic regression models</a></li>
 <span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a>  </span>
 <span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a>  pool_lr<span class="sc">$</span>RR_model_final</span>
 <span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="co">#&gt; $`Final model`</span></span>
-<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="co">#&gt;          term   estimate  std.error statistic       df     p.value        OR</span></span>
-<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a><span class="co">#&gt; 1 (Intercept)  1.1987368 0.46296043  2.589286 140.6708 0.010628564 3.3159254</span></span>
-<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a><span class="co">#&gt; 2    Function -0.1383369 0.04129885 -3.349655 143.4305 0.001034044 0.8708053</span></span>
+<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="co">#&gt;          term  estimate  std.error statistic       df     p.value        OR</span></span>
+<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a><span class="co">#&gt; 1 (Intercept)  1.222286 0.46971652  2.602178 136.8128 0.010283681 3.3949402</span></span>
+<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a><span class="co">#&gt; 2    Function -0.139503 0.04188283 -3.330792 133.3454 0.001120439 0.8697904</span></span>
 <span id="cb5-51"><a href="#cb5-51" tabindex="-1"></a><span class="co">#&gt;   lower.EXP upper.EXP</span></span>
-<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a><span class="co">#&gt; 1 1.3277386 8.2812700</span></span>
-<span id="cb5-53"><a href="#cb5-53" tabindex="-1"></a><span class="co">#&gt; 2 0.8025429 0.9448738</span></span></code></pre></div>
+<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a><span class="co">#&gt; 1 1.3410364 8.5945611</span></span>
+<span id="cb5-53"><a href="#cb5-53" tabindex="-1"></a><span class="co">#&gt; 2 0.8006402 0.9449131</span></span></code></pre></div>
 <p>Back to <a href="#examples">Examples</a></p>
 </div>
 </div>
